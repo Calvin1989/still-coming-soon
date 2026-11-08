@@ -1,0 +1,73 @@
+# 所有阈值、白名单、会议设置都放在这里，代码里不写死。
+
+[venues.iclr2025]
+name = "ICLR 2025"
+# 会议开幕日期。承诺天数从"论文首次公开"和"会议开幕"中较晚的那天算起。
+conference_date = "2025-04-24"
+arxiv_query = '''co:"ICLR 2025" OR co:ICLR2025 OR co:"ICLR'25"'''
+# arXiv 备注里必须出现会议名
+# 能匹配 ICLR 2025 / ICLR2025 / ICLR'25 / ICLR-2025 / ICLR'2025 / (ICLR) 2025 / (ICLR), 2025
+include = ['''ICLR\)?[\s,'’-]*(?:20)?25\b''']
+# 出现这些词说明不是正式录用论文，排除（宁可漏收，不要错收）
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tiny ?paper', 'blog ?post',
+]
+
+[venues.cvpr2025]
+name = "CVPR 2025"
+conference_date = "2025-06-11"
+arxiv_query = '''co:"CVPR 2025" OR co:CVPR2025 OR co:"CVPR'25" OR co:"CVPR-25"'''
+include = ['''CVPR\)?[\s,'’-]*(?:20)?25\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'challenge', 'technical report', 'tech(?:nical)? report',
+  'competition', 'tutorial', '\\bdemo\\b',
+]
+
+[venues.aaai2025]
+name = "AAAI 2025"
+conference_date = "2025-02-25"
+arxiv_query = '''co:"AAAI 2025" OR co:AAAI2025 OR co:"AAAI'25" OR co:"AAAI-25"'''
+include = ['''AAAI\)?[\s,'’-]*(?:20)?25\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'student abstract', '\\bdemo\\b', '\\bbridge program',
+  'doctoral consortium', 'undergraduate consortium', 'new faculty', 'senior member',
+  '\\bsummit\\b', 'tutorial',
+]
+
+[classify]
+# 达到这个大小才算"已开源"，低于它但大于 0 算"只放了少量代码"
+min_code_bytes = 5000
+code_extensions = [
+  ".py", ".ipynb", ".pyx", ".c", ".cc", ".cpp", ".cu", ".cuh", ".h", ".hpp",
+  ".java", ".scala", ".kt", ".js", ".ts", ".jsx", ".tsx", ".jl", ".m", ".r",
+  ".rs", ".go", ".swift", ".lua", ".sh",
+]
+# 没有代码、但数据/模型文件达到这个大小，算"只放了数据"（基准测试类论文常见）
+min_data_bytes = 100000
+data_extensions = [
+  ".json", ".jsonl", ".csv", ".tsv", ".txt", ".parquet", ".arrow", ".npy", ".npz",
+  ".pkl", ".pt", ".pth", ".ckpt", ".safetensors", ".bin", ".h5", ".hdf5",
+  ".zip", ".gz", ".tar", ".7z",
+]
+# README 里出现这些短语，说明作者写了"即将开源"
+promise_phrases = [
+  'coming soon', 'will be (?:made )?(?:publicly )?(?:released|available|open[- ]?sourced|uploaded|updated)',
+  'to be released', 'upon (?:acceptance|publication)', 'stay tuned', '\bTODO\b',
+  'under construction', 'release (?:the |our )?code soon', '即将开源', '敬请期待',
+]
+
+[probe]
+workers = 16
+timeout_seconds = 90
+# 只下载小于这个大小的文件内容；更大的文件只记"至少这么大"
+blob_limit_bytes = 262144
+readme_chars = 1500
+# 文件数不超过这个值时保存完整文件列表（已开源的大仓库不需要）
+max_listing_files = 40
+
+[site]
+# 项目的 GitHub 地址，用于"申请更正"链接（指向 issues）。还没建仓库时留空。
+repo_url = ""

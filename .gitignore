@@ -1,0 +1,10 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+public/
+
+# 原始抓取数据：体积大，随时可以重新抓取（python -m scs papers / fulltext）
+data/raw/
+# 网站数据由其他数据算出（其中"会议过去多少天"每天都变），部署时现场生成，不提交
+data/site/

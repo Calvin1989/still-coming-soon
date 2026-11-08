@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<link rel="preload" href="{{root}}static/fonts/stix-two-text-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{root}}static/style.css">
+</head>
+<body>
+<div class="page">
+<header class="masthead">
+  <a class="wordmark" href="index.html">Still coming soon</a>
+  <nav>
+    <a href="index.html"{{current_index}}>{{nav_index}}</a>
+    <a href="about.html"{{current_about}}>{{nav_about}}</a>
+    <a href="{{other_lang_url}}" hreflang="{{other_lang}}" lang="{{other_lang}}">{{other_lang_name}}</a>
+  </nav>
+</header>
+<main>
+{{content}}
+</main>
+<footer class="footer">
+  <p>{{footer_data}}</p>
+  <p>{{footer_correction}}</p>
+</footer>
+</div>
+{{scripts}}
+</body>
+</html>

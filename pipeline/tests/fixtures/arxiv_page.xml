@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <opensearch:totalResults>2</opensearch:totalResults>
+  <entry>
+    <id>http://arxiv.org/abs/2501.00001v2</id>
+    <title>A  Paper
+      Title</title>
+    <published>2025-01-23T10:46:14Z</published>
+    <summary>We do things. Code will be released at https://github.com/a/b.</summary>
+    <arxiv:comment>Accepted at ICLR 2025</arxiv:comment>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2501.00002v1</id>
+    <title>Another</title>
+    <published>2025-01-24T10:46:14Z</published>
+    <summary>Code at https://github.com/c/d.</summary>
+    <arxiv:comment>Under review at ICLR 2025</arxiv:comment>
+  </entry>
+</feed>

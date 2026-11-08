@@ -1,0 +1,43 @@
+# 每月：重新拿论文列表和正文（arXiv 上会有新版本、新论文），重新找仓库链接。
+# 正文抓取每篇间隔 3 秒，一个会议一两个小时。
+name: monthly
+
+on:
+  schedule:
+    - cron: "41 3 1 * *"  # 每月 1 日 UTC 03:41
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+env:
+  VENUES: "iclr2025 cvpr2025 aaai2025"
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Refresh papers, full text and links
+        working-directory: pipeline
+        run: |
+          for v in $VENUES; do
+            python -m scs papers   --venue "$v"
+            python -m scs fulltext --venue "$v"
+            python -m scs links    --venue "$v"
+          done
+      - name: Commit data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/papers data/fulltext data/links
+          git diff --cached --quiet || git commit -m "data: monthly refresh $(date -u +%F)"
+          git push

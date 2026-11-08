@@ -1,0 +1,38 @@
+<div class="prose">
+<h1>How it works</h1>
+<h2>What counts as a promise</h2>
+<p>A paper counts as promising code when it links its <em>own</em> GitHub repository, or says its code will be released. We look in two places:</p>
+<ul>
+  <li>The abstract and comments returned by the arXiv API.</li>
+  <li>The full text of the paper (the arXiv HTML version). A link in the body only counts when the sentence around it talks about the authors' own work, for example “Our code is available at …” or “Code: …”. Links in the references, and links to other people's code, never count.</li>
+</ul>
+<p>We only include papers whose arXiv comment says they were accepted at the conference (for example “Accepted at ICLR 2025”). Workshop papers and papers “under review” are excluded.</p>
+
+<h2>How a repository is judged</h2>
+<p>We make a shallow clone of the repository's default branch and look at the files in its latest commit.</p>
+<table>
+  <tr><th>Status</th><th>Rule</th></tr>
+  <tr><td>Code released</td><td>Source files (.py, .ipynb, .cpp, .cu, .js, …) add up to at least 5 KB.</td></tr>
+  <tr><td>A few lines of code</td><td>Some source files, but less than 5 KB.</td></tr>
+  <tr><td>Data only</td><td>No source files, but at least 100 KB of data or model files (.json, .csv, .pt, .safetensors, …). Common for benchmark papers.</td></tr>
+  <tr><td>Empty repository</td><td>No source files and no meaningful data: only a README, a license or images.</td></tr>
+  <tr><td>Repository gone</td><td>The repository does not exist or is private.</td></tr>
+  <tr><td>No repository in the arXiv version</td><td>The arXiv version says code will be released but gives no repository link, or links only to an anonymous review copy (anonymous.4open.science). Code hosted outside GitHub may be missed; please tell us.</td></tr>
+</table>
+<p>“Promised N days ago” counts from the later of two dates: the first arXiv version of the paper, and the first day of the conference.</p>
+
+<h2>What counts as not delivered</h2>
+<p>Only three statuses count: empty repository, a few lines of code, and repository gone. “Data only” is not counted, because benchmark papers may only need to share data. “No repository in the arXiv version” is not counted either. The latest arXiv version of a paper is sometimes still the version written during double-blind review, and the code may have been published on a project page or elsewhere without updating arXiv.</p>
+
+<h2>What we do not do</h2>
+<ul>
+  <li>We do not show author names, and we do not judge anyone. A repository can be empty for good reasons; we only report what is there.</li>
+  <li>We only check the default branch. If the code lives on another branch or another site, please tell us.</li>
+</ul>
+
+<h2>Limitations</h2>
+<ul>
+  <li>Only papers that mention the conference in their arXiv comment are covered, which is a bit under half of the accepted papers.</li>
+  <li>The full-text step depends on arXiv's HTML version, which some papers do not have.</li>
+</ul>
+</div>

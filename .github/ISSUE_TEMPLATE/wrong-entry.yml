@@ -1,0 +1,38 @@
+name: A paper is listed by mistake / 论文被误判
+description: The code is elsewhere, or we picked the wrong repository. / 代码在别处，或者找错了仓库。
+title: "Wrong entry: "
+labels: ["wrong entry"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If you have just pushed your code, you don't need to open an issue: the next daily check (02:17 UTC) picks it up.
+        如果你刚上传了代码，不需要提 issue：下一次每日检查（北京时间 10:17 左右）会自动更新。
+  - type: input
+    id: paper
+    attributes:
+      label: Paper (arXiv link) / 论文（arXiv 链接）
+      placeholder: https://arxiv.org/abs/2501.12345
+    validations:
+      required: true
+  - type: dropdown
+    id: problem
+    attributes:
+      label: What is wrong? / 哪里不对？
+      options:
+        - The code is on another branch / 代码在其他分支
+        - The code is in a different repository / 代码在另一个仓库
+        - The code is not on GitHub (e.g. Hugging Face) / 代码不在 GitHub 上（如 Hugging Face）
+        - This repository is not the paper's own / 这个仓库不是论文自己的
+        - Something else / 其他
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where is the code? / 代码在哪里？
+      placeholder: https://github.com/owner/repo/tree/branch
+  - type: textarea
+    id: details
+    attributes:
+      label: Anything else / 补充说明

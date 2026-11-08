@@ -69,6 +69,11 @@ class RepoSnapshot:
     # 大小为 -1 表示文件太大、没有下载内容。
     listing: tuple[tuple[str, int], ...] = ()
 
+    @property
+    def gone(self) -> bool:
+        """确认仓库不存在（不是网络问题）。"""
+        return not self.error and not self.exists
+
 
 class Status(StrEnum):
     RELEASED = "released"  # 已开源

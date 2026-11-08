@@ -138,6 +138,8 @@ def _has(row: dict[str, Any], status: str, t: dict[str, Any], promise: re.Patter
             inner += (
                 f'<p class="note">{escape(t["last_commit"].format(date=row["last_commit"]))}</p>'
             )
+    if row.get("linked_repo"):
+        inner += f'<p class="note">{escape(t["fallback_note"].format(repo=row["linked_repo"]))}</p>'
     readme = ""
     if row.get("promise_text"):
         readme = (

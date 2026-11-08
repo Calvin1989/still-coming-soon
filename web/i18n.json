@@ -72,7 +72,8 @@
     "years_label": "Year",
     "year_empty": "No results for this year yet.",
     "back_year": "All {year} conferences",
-    "other_years": "Other years:"
+    "other_years": "Other years:",
+    "fallback_note": "The repository linked above, github.com/{repo}, does not exist; this is another repository the paper names."
   },
   "zh": {
     "lang_name": "中文",
@@ -133,6 +134,7 @@
     "years_label": "年份",
     "year_empty": "这一年还没有结果。",
     "back_year": "{year} 年的全部会议",
-    "other_years": "其他年份："
+    "other_years": "其他年份：",
+    "fallback_note": "上面那句话里的仓库 github.com/{repo} 不存在，这是论文里写的另一个仓库。"
   }
 }

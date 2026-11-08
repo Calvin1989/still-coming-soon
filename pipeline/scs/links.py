@@ -26,6 +26,10 @@ _REPO = re.compile(
 _RESERVED_OWNERS = {"orgs", "features", "topics", "about", "settings", "marketplace", "sponsors"}
 # 作者用来占位的匿名账号（github.com/anonymous/…），不是真仓库
 _ANON_OWNER = re.compile(r"^anon(?:ymous|ymized)?(?:[-_]?\w*)?$", re.IGNORECASE)
+# 占位符：github.com/xxx/xxx 这类，定稿里忘了换成真链接，和匿名链接同样处理
+_PLACEHOLDER_OWNER = re.compile(r"^x{3,}$", re.IGNORECASE)
+# gist.github.com/… 是代码片段，不是仓库
+_GIST_BEFORE = re.compile(r"gist\.\s*$", re.IGNORECASE)
 
 # "可获取/已发布"一类的词，出现在句子里才说明这句话是在给出代码的位置
 _AVAILABLE = (
@@ -145,7 +149,13 @@ def find_repos(text: str) -> list[tuple[str, int]]:
     text = _normalize(text)
     for m in _REPO.finditer(text):
         owner, name = m.group(1), _clean_name(m.group(2), text[m.end() : m.end() + 3])
-        if name and owner.lower() not in _RESERVED_OWNERS and not _ANON_OWNER.match(owner):
+        if (
+            name
+            and owner.lower() not in _RESERVED_OWNERS
+            and not _ANON_OWNER.match(owner)
+            and not _PLACEHOLDER_OWNER.match(owner)
+            and not _GIST_BEFORE.search(text[max(m.start() - 8, 0) : m.start()])
+        ):
             found.append((f"{owner}/{name}", m.start()))
     return found
 
@@ -322,12 +332,13 @@ def resolve(paper: Paper, full: FullText | None) -> RepoLink | None:
 
 
 _ANON = re.compile(
-    r"anonymous\.4open\.science/r/[\w.-]+|github\.com/anonym\w*/[\w.-]+", re.IGNORECASE
+    r"anonymous\.4open\.science/r/[\w.-]+|github\.com/(?:anonym\w*|x{3,})/[\w.-]+",
+    re.IGNORECASE,
 )
 
 
 def anonymous_link(full: FullText | None) -> str:
-    """定稿里仍然只给了匿名评审链接（anonymous.4open.science）时返回该链接。"""
+    """定稿里仍然只给了匿名评审链接（anonymous.4open.science）或占位链接时返回该链接。"""
     if full is None or not full.available:
         return ""
     for frag in full.fragments:
@@ -362,3 +373,71 @@ def promise_without_link(full: FullText | None) -> str:
             end = frag.text.find(".", m.end())
             return frag.text[start : end + 1 if end != -1 else None].strip()[:300]
     return ""
+
+
+# 仓库名后面粘上了下一个词，比如 "Reasoning-Affects-LLM-JudgeCode"
+_GLUED_TAIL = re.compile(
+    r"^(.*[a-z0-9])(?:Code|Codes|Data|Dataset|Paper|Project|Page|Website|GitHub|Github|Repo)$"
+)
+
+
+_STOPWORDS = frozenset(
+    {"a", "an", "and", "as", "for", "in", "of", "on", "the", "to", "via", "with"}
+)
+
+
+def _norm(name: str) -> str:
+    return re.sub(r"[-_.]", "", name.lower())
+
+
+def _words(name: str) -> list[str]:
+    return [w for w in re.split(r"[-_.]+", name.lower()) if w]
+
+
+def _covers(short: str, long: str) -> bool:
+    """short 的每个词都出现在 long 里，或是 long 里连续几个词的首字母缩写。
+
+    例如 IRT-Judge 和 …-Judge-via-Item-Response-Theory。
+    """
+    words = _words(long)
+    content = [w for w in words if w not in _STOPWORDS]
+    acronyms = {
+        "".join(w[0] for w in content[i:j])
+        for i in range(len(content))
+        for j in range(i + 2, len(content) + 1)
+    }
+    tokens = _words(short)
+    return bool(tokens) and all(t in words or t in acronyms for t in tokens)
+
+
+def _similar(a: str, b: str) -> bool:
+    """两个仓库名是不是同一个东西的不同写法。"""
+    na, nb = _norm(a), _norm(b)
+    short, long = sorted((na, nb), key=len)
+    if len(short) >= 3 and short in long:
+        return True
+    return _covers(a, b) or _covers(b, a)
+
+
+def fallback_repos(link: RepoLink) -> list[str]:
+    """主链接的仓库不存在时再试的仓库，按顺序。
+
+    论文里经常给出两个写法不同的链接（摘要和正文不一致、改过名、后面粘了单词）。
+    只要其中一个有代码，就不算没兑现：宁可漏判，也不冤枉作者。
+    候选必须像是同一个仓库，不能是同一作者的另一个项目：
+      同一账号，名字相近（parsacare / parsac，IRT-Judge / …-Item-Response-Theory）；
+      名字相同，账号相近（sxq / sxq11，unibo-nlp / disi-unibo-nlp）；
+      去掉粘连单词后的名字（…-JudgeCode → …-Judge）。
+    """
+    owner, name = link.repo.split("/", 1)
+    out = []
+    for other in link.all_repos:
+        o, n = other.split("/", 1)
+        if other.lower() == link.repo.lower():
+            continue
+        same_owner = o.lower() == owner.lower()
+        if (same_owner and _similar(name, n)) or (_norm(n) == _norm(name) and _similar(owner, o)):
+            out.append(other)
+    if m := _GLUED_TAIL.match(name):
+        out.append(f"{owner}/{m.group(1)}")
+    return list(dict.fromkeys(out))

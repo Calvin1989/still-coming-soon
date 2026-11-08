@@ -21,7 +21,7 @@ from pathlib import Path
 
 from scs import config, store
 from scs.build import build_venue
-from scs.links import resolve
+from scs.links import fallback_repos, resolve
 from scs.probe import probe_many
 from scs.render import render_site
 from scs.render_index import Upcoming
@@ -81,9 +81,23 @@ def cmd_probe(args: argparse.Namespace, cfg: config.Config) -> None:
     links = store.load_links(args.venue)
     repos = list(dict.fromkeys(link.repo for link in links))[: args.limit]
     snapshots = probe_many(repos, cfg.probe)
+    # 不存在的仓库：再试同一篇论文里的其他写法（见 links.fallback_repos）
+    gone = {s.repo.lower() for s in snapshots if s.gone}
+    checked = {s.repo.lower() for s in snapshots}
+    extra = [
+        r
+        for link in links
+        if link.repo.lower() in gone
+        for r in fallback_repos(link)
+        if r.lower() not in checked
+    ]
+    snapshots += probe_many(list(dict.fromkeys(extra)), cfg.probe)
     store.save_snapshots(args.venue, snapshots)
     errors = sum(1 for s in snapshots if s.error)
-    print(f"probe: 检查了 {len(snapshots)} 个仓库，其中 {errors} 个检查失败")
+    print(
+        f"probe: 检查了 {len(snapshots)} 个仓库（其中 {len(set(extra))} 个是备选写法），"
+        f"{errors} 个检查失败"
+    )
 
 
 def cmd_build(args: argparse.Namespace, cfg: config.Config) -> None:

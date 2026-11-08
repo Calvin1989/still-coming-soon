@@ -8,7 +8,7 @@ from typing import Any
 
 from scs.classify import classify
 from scs.config import ClassifyConfig, VenueConfig
-from scs.links import anonymous_link, promise_without_link
+from scs.links import anonymous_link, fallback_repos, promise_without_link
 from scs.models import FullText, Paper, RepoLink, RepoSnapshot, Status
 
 _STATUS_ORDER = {
@@ -40,7 +40,9 @@ def _repo_row(
         "paper_id": paper.paper_id,
         "title": paper.title,
         "url": paper.url,
-        "repo": link.repo,
+        "repo": snap.repo,
+        # 论文链接的仓库不存在、改用了论文里的另一个写法时，记下原来的链接
+        "linked_repo": link.repo if snap.repo.lower() != link.repo.lower() else "",
         "status": verdict.status.value,
         "promise_text": verdict.promise_text,
         "paper_sentence": link.sentence,
@@ -65,6 +67,18 @@ def _no_repo_row(paper: Paper, kind: str, evidence: str, venue: VenueConfig, tod
     }
 
 
+def _snapshot_for(link: RepoLink, by_repo: dict[str, RepoSnapshot]) -> RepoSnapshot | None:
+    """主链接的检查结果；主链接不存在时，用第一个存在的备选写法。"""
+    snap = by_repo.get(link.repo.lower())
+    if snap is None or not snap.gone:
+        return snap
+    for alt in fallback_repos(link):
+        other = by_repo.get(alt.lower())
+        if other is not None and other.exists and not other.error:
+            return other
+    return snap
+
+
 def status_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
     counts = Counter(r["status"] for r in rows)
     return {s.value: counts.get(s.value, 0) for s in Status}
@@ -86,7 +100,7 @@ def build_venue(
     for paper in papers:
         link = by_paper.get(paper.paper_id)
         if link is not None:
-            snap = by_repo.get(link.repo.lower())
+            snap = _snapshot_for(link, by_repo)
             if snap is not None:
                 rows.append(_repo_row(paper, link, snap, venue, cfg, today))
             continue

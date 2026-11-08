@@ -183,6 +183,15 @@ def fetch(arxiv_id: str, paper_id: str) -> FullText:
     return FullText(paper_id, 200 if fragments is not None else 204, fragments or ())
 
 
+def missing(paper_ids: list[str], existing: dict[str, FullText]) -> list[str]:
+    """还没抓过正文的论文。arXiv 明确没有 HTML 版（404）的不再重试。"""
+    return [
+        pid
+        for pid in paper_ids
+        if pid not in existing or existing[pid].http_status not in (200, 404)
+    ]
+
+
 def fetch_many(paper_ids: list[str]) -> list[FullText]:
     results = []
     for i, pid in enumerate(paper_ids):

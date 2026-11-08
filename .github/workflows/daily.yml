@@ -40,8 +40,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/snapshots
-          git diff --cached --quiet || git commit -m "data: daily check $(date -u +%F)"
-          git push
+          git diff --cached --quiet && exit 0
+          git commit -m "data: daily check $(date -u +%F)"
+          for i in 1 2 3; do git pull --rebase && git push && exit 0; sleep $((i * 10)); done
+          exit 1
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public

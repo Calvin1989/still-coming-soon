@@ -62,7 +62,7 @@ Tests: `pip install pytest ruff && ruff check . && pytest` (no network needed).
 
 ## Adding a venue
 
-Add a `[venues.<key>]` section to `pipeline/config.toml` with the arXiv query and the conference date, then add the key to `VENUES` in `.github/workflows/*.yml`.
+Add a `[venues.<key>]` section to `pipeline/config.toml` with the arXiv query and the conference date, then add the key to `VENUES` in `.github/workflows/daily.yml` and to the `matrix` in `monthly.yml`.
 
 ## Results
 

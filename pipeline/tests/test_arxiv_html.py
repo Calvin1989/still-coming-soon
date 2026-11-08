@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from scs.sources.arxiv_html import parse_html
+from scs.models import FullText
+from scs.sources.arxiv_html import missing, parse_html
 
 HTML = (Path(__file__).parent / "fixtures" / "arxiv_paper.html").read_text(encoding="utf-8")
 
@@ -33,3 +34,12 @@ def test_link_with_non_url_text_gets_address_inline():
     )
     (frag,) = parse_html(html)
     assert "available here (https://github.com/me/x)." in frag.text
+
+
+def test_missing_skips_done_and_404_but_retries_errors():
+    existing = {
+        "arxiv:1": FullText("arxiv:1", 200, ()),
+        "arxiv:2": FullText("arxiv:2", 404, ()),
+        "arxiv:3": FullText("arxiv:3", 503, ()),
+    }
+    assert missing(["arxiv:1", "arxiv:2", "arxiv:3", "arxiv:4"], existing) == ["arxiv:3", "arxiv:4"]

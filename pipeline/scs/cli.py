@@ -33,14 +33,20 @@ def cmd_papers(args: argparse.Namespace, cfg: config.Config) -> None:
 
 
 def cmd_fulltext(args: argparse.Namespace, cfg: config.Config) -> None:
+    """只处理还没有正文的论文，已有的保留（第一次全量很慢，之后每次只抓新论文）。"""
     known = {p.paper_id for p in store.load_papers(args.venue)}
+    existing = store.load_fulltexts(args.venue)
     if args.dump:
-        fulltexts = [f for f in arxiv_html.load_dump(args.dump) if f.paper_id in known]
+        new = [f for f in arxiv_html.load_dump(args.dump) if f.paper_id in known]
     else:
-        fulltexts = arxiv_html.fetch_many(sorted(known)[: args.limit])
+        todo = arxiv_html.missing(sorted(known), existing)[: args.limit]
+        print(f"fulltext: 需要抓取 {len(todo)} 篇（已有 {len(existing)} 篇）")
+        new = arxiv_html.fetch_many(todo)
+    merged = {**existing, **{f.paper_id: f for f in new}}
+    fulltexts = [merged[pid] for pid in sorted(merged) if pid in known]
     store.write_jsonl(store.path_for("fulltext", args.venue), fulltexts)
     statuses = Counter(f.http_status for f in fulltexts)
-    print(f"fulltext: {len(fulltexts)} 篇，HTTP 状态 {dict(statuses)}")
+    print(f"fulltext: 共 {len(fulltexts)} 篇，HTTP 状态 {dict(statuses)}")
 
 
 def cmd_links(args: argparse.Namespace, cfg: config.Config) -> None:

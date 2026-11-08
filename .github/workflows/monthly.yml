@@ -1,5 +1,6 @@
-# 每月：重新拿论文列表和正文（arXiv 上会有新版本、新论文），重新找仓库链接。
-# 正文抓取每篇间隔 3 秒，一个会议一两个小时。
+# 每月：重新拿论文列表（arXiv 上会有新论文），补抓还没有正文的论文，重新找仓库链接。
+# 每个会议一个独立任务并行跑，各自只提交自己的数据文件。
+# 第一次需要抓全部正文（每篇间隔 3 秒，一个会议一个多小时），之后每次只抓新论文。
 name: monthly
 
 on:
@@ -10,17 +11,14 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: pipeline
-  cancel-in-progress: false
-
-env:
-  VENUES: "iclr2025 cvpr2025 aaai2025"
-
 jobs:
   refresh:
     runs-on: ubuntu-latest
     timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        venue: [iclr2025, cvpr2025, aaai2025]  # 和 daily.yml 的 VENUES 保持一致
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -29,15 +27,17 @@ jobs:
       - name: Refresh papers, full text and links
         working-directory: pipeline
         run: |
-          for v in $VENUES; do
-            python -m scs papers   --venue "$v"
-            python -m scs fulltext --venue "$v"
-            python -m scs links    --venue "$v"
-          done
+          python -m scs papers   --venue "${{ matrix.venue }}"
+          python -m scs fulltext --venue "${{ matrix.venue }}"
+          python -m scs links    --venue "${{ matrix.venue }}"
       - name: Commit data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/papers data/fulltext data/links
-          git diff --cached --quiet || git commit -m "data: monthly refresh $(date -u +%F)"
-          git push
+          v="${{ matrix.venue }}"
+          git add "data/papers/$v.jsonl" "data/fulltext/$v.jsonl" "data/links/$v.jsonl"
+          git diff --cached --quiet && exit 0
+          git commit -m "data: monthly refresh of $v $(date -u +%F)"
+          # 三个任务并行提交，各自改的是不同文件，先 rebase 再推送
+          for i in 1 2 3; do git pull --rebase && git push && exit 0; sleep $((i * 10)); done
+          exit 1

@@ -70,4 +70,4 @@ max_listing_files = 40
 
 [site]
 # 项目的 GitHub 地址，用于"申请更正"链接（指向 issues）。还没建仓库时留空。
-repo_url = ""
+repo_url = "https://github.com/Calvin1989/still-coming-soon"

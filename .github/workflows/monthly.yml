@@ -1,6 +1,7 @@
 # 每月：重新拿论文列表（arXiv 上会有新论文），补抓还没有正文的论文，重新找仓库链接。
 # 每个会议一个独立任务并行跑，各自只提交自己的数据文件。
-# 第一次需要抓全部正文（每篇间隔 3 秒，一个会议一个多小时），之后每次只抓新论文。
+# 第一次需要抓全部正文（每篇间隔 3 秒，一个会议一到三小时），之后每次只抓新论文。
+# 正文每 200 篇保存一次，最多抓 4 小时，没抓完的下次接着抓。
 name: monthly
 
 on:
@@ -12,13 +13,29 @@ permissions:
   contents: write
 
 jobs:
+  plan:
+    # 已经开幕的会议都要抓（还没到展示时间的也先抓好，到时候直接上线）
+    runs-on: ubuntu-latest
+    outputs:
+      venues: ${{ steps.list.outputs.venues }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: list
+        working-directory: pipeline
+        run: echo "venues=$(python -m scs venues --when held --json)" >> "$GITHUB_OUTPUT"
+
   refresh:
+    needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 300
     strategy:
       fail-fast: false
+      max-parallel: 8  # 同时请求 arXiv 的任务太多容易被限流
       matrix:
-        venue: [iclr2025, cvpr2025, aaai2025, neurips2025, icml2025, iccv2025, acl2025, emnlp2025, ijcai2025, acmmm2025]  # 和 daily.yml 的 VENUES 保持一致
+        venue: ${{ fromJSON(needs.plan.outputs.venues) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -28,7 +45,7 @@ jobs:
         working-directory: pipeline
         run: |
           python -m scs papers   --venue "${{ matrix.venue }}"
-          python -m scs fulltext --venue "${{ matrix.venue }}"
+          python -m scs fulltext --venue "${{ matrix.venue }}" --minutes 240  # 超时的部分下个月接着抓
           python -m scs links    --venue "${{ matrix.venue }}"
       - name: Commit data
         run: |

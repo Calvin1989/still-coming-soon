@@ -101,6 +101,7 @@ def build_venue(
     return {
         "venue": venue.key,
         "name": venue.name,
+        "conference_date": venue.conference_date,
         "built_on": today.isoformat(),
         "papers": len(papers),
         "papers_with_fulltext": sum(1 for f in fulltexts.values() if f.available),

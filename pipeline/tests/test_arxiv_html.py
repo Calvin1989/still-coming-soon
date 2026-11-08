@@ -43,3 +43,17 @@ def test_missing_skips_done_and_404_but_retries_errors():
         "arxiv:3": FullText("arxiv:3", 503, ()),
     }
     assert missing(["arxiv:1", "arxiv:2", "arxiv:3", "arxiv:4"], existing) == ["arxiv:3", "arxiv:4"]
+
+
+def test_fetch_many_stops_at_deadline(monkeypatch):
+    import time
+
+    from scs.sources import arxiv_html
+
+    calls = []
+    monkeypatch.setattr(arxiv_html, "DELAY_SECONDS", 0)
+    monkeypatch.setattr(arxiv_html, "fetch", lambda aid, pid: calls.append(pid) or pid)
+    ids = ["arxiv:1", "arxiv:2"]
+    assert arxiv_html.fetch_many(ids, time.monotonic() + 60) == ids
+    assert arxiv_html.fetch_many(["arxiv:3"], time.monotonic() - 1) == []
+    assert calls == ["arxiv:1", "arxiv:2"]

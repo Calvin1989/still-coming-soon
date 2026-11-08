@@ -72,6 +72,19 @@ VENUES = config.load().venues
         ("neurips2025", "Accepted in NeurIPS (2025)", True),
         ("emnlp2025", "Accepted at EMNLP* 2025", True),
         ("acmmm2025", "Accepted by ACM MM(2025)", True),
+        # 2026
+        ("ijcai2026", "Accepted by IJCAI-ECAI 2026", True),
+        ("ijcai2026", "IJCAI-26 main track", True),
+        ("ijcai2026", "ECAI 2026", False),
+        ("iclr2026", "Under review at ICLR 2026", False),
+        ("iclr2026", "ICLR 2026 (Oral)", True),
+        ("iclr2025", "Accepted at ICLR 2026", False),
+        ("acl2026", "Findings of ACL 2026", False),
+        ("acl2026", "EACL 2026", False),
+        ("eccv2026", "ECCV 2026 workshop", False),
+        ("eccv2026", "Accepted to ECCV'26", True),
+        ("acmmm2026", "MM '26, November 10-14, 2026, Rio de Janeiro, Brazil", True),
+        ("neurips2026", "NeurIPS 2025", False),
     ],
 )
 def test_other_venues(venue, comment, accepted):

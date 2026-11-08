@@ -113,6 +113,124 @@ exclude = [
   'grand challenge', 'challenge', 'brave new ideas', 'open source competition', 'doctoral',
 ]
 
+# ---------- 2026 ----------
+# 会议开幕 [schedule].wait_days 天后才出现在网站上；还没开的会议每月任务也会先跳过。
+
+[venues.aaai2026]
+name = "AAAI 2026"
+conference_date = "2026-01-20"
+arxiv_query = '''co:"AAAI 2026" OR co:AAAI2026 OR co:"AAAI'26" OR co:"AAAI-26"'''
+include = ['''AAAI[\s,'’()*@-]*(?:20)?26\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'student abstract', '\\bbridge program', 'doctoral consortium', 'undergraduate consortium',
+  'new faculty', 'senior member', '\\bsummit\\b',
+]
+
+[venues.iclr2026]
+name = "ICLR 2026"
+conference_date = "2026-04-23"
+arxiv_query = '''co:"ICLR 2026" OR co:ICLR2026 OR co:"ICLR'26" OR co:"ICLR-26"'''
+include = ['''ICLR[\s,'’()*@-]*(?:20)?26\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'tiny ?paper', 'blog ?post',
+]
+
+[venues.cvpr2026]
+name = "CVPR 2026"
+conference_date = "2026-06-03"
+arxiv_query = '''co:"CVPR 2026" OR co:CVPR2026 OR co:"CVPR'26" OR co:"CVPR-26"'''
+include = ['''CVPR[\s,'’()*@-]*(?:20)?26\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'challenge', 'tech(?:nical)? report', 'competition',
+]
+
+[venues.icml2026]
+name = "ICML 2026"
+conference_date = "2026-07-06"
+arxiv_query = '''co:"ICML 2026" OR co:ICML2026 OR co:"ICML'26" OR co:"ICML-26"'''
+include = ['''ICML[\s,'’()*@-]*(?:20)?26\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+]
+
+[venues.acl2026]
+name = "ACL 2026"
+conference_date = "2026-07-02"
+arxiv_query = '''co:"ACL 2026" OR co:ACL2026 OR co:"ACL'26" OR co:"ACL-26"'''
+include = ['''(?<![A-Za-z])ACL[\s,'’()*@-]*(?:20)?26\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'findings', 'student research', 'system demonstration', 'shared task', 'industry track',
+]
+
+[venues.ijcai2026]
+name = "IJCAI 2026"
+# 2026 年和 ECAI 合办，备注里常写成 IJCAI-ECAI 2026
+conference_date = "2026-08-15"
+arxiv_query = '''co:"IJCAI 2026" OR co:IJCAI2026 OR co:"IJCAI'26" OR co:"IJCAI-26" OR co:"IJCAI-ECAI 2026" OR co:"IJCAI-ECAI-26"'''
+include = ['''IJCAI(?:[\s,'’()*@-]*ECAI)?[\s,'’()*@-]*(?:20)?26\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'doctoral consortium', 'survey track', 'early career',
+]
+
+[venues.eccv2026]
+name = "ECCV 2026"
+conference_date = "2026-09-08"
+arxiv_query = '''co:"ECCV 2026" OR co:ECCV2026 OR co:"ECCV'26" OR co:"ECCV-26"'''
+include = ['''ECCV[\s,'’()*@-]*(?:20)?26\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'challenge', 'tech(?:nical)? report', 'competition',
+]
+
+[venues.emnlp2026]
+name = "EMNLP 2026"
+conference_date = "2026-10-24"
+arxiv_query = '''co:"EMNLP 2026" OR co:EMNLP2026 OR co:"EMNLP'26" OR co:"EMNLP-26"'''
+include = ['''EMNLP[\s,'’()*@-]*(?:20)?26\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'findings', 'student research', 'system demonstration', 'shared task', 'industry track',
+]
+
+[venues.acmmm2026]
+name = "ACM MM 2026"
+conference_date = "2026-11-10"
+arxiv_query = '''co:"ACM MM 2026" OR co:"ACM Multimedia 2026" OR co:"ACM MM'26" OR co:"MM '26" OR co:"MM 2026" OR co:ACMMM2026 OR co:"ACM MM26"'''
+include = ['''(?:ACM\s*(?:MM|Multimedia)|(?<![A-Za-z])MM)[\s,'’()*@-]*(?:20)?26\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'grand challenge', 'challenge', 'brave new ideas', 'open source competition', 'doctoral',
+]
+
+[venues.neurips2026]
+name = "NeurIPS 2026"
+conference_date = "2026-12-06"
+arxiv_query = '''co:"NeurIPS 2026" OR co:NeurIPS2026 OR co:"NeurIPS'26" OR co:"NeurIPS-26"'''
+include = ['''NeurIPS[\s,'’()*@-]*(?:20)?26\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'competition', 'creative ai', 'high school',
+]
+
+[schedule]
+# 会议开幕多少天后才在网站上展示：给作者留出整理代码的时间，免得会议刚开就被标成"没兑现"。
+wait_days = 90
+
 [classify]
 # 达到这个大小才算"已开源"，低于它但大于 0 算"只放了少量代码"
 min_code_bytes = 5000

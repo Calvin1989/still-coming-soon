@@ -192,9 +192,12 @@ def missing(paper_ids: list[str], existing: dict[str, FullText]) -> list[str]:
     ]
 
 
-def fetch_many(paper_ids: list[str]) -> list[FullText]:
+def fetch_many(paper_ids: list[str], deadline: float | None = None) -> list[FullText]:
+    """deadline：time.monotonic() 的截止时刻，到了就停，返回已经抓到的。"""
     results = []
     for i, pid in enumerate(paper_ids):
+        if deadline is not None and time.monotonic() >= deadline:
+            break
         if i:
             time.sleep(DELAY_SECONDS)
         results.append(fetch(pid.removeprefix("arxiv:"), pid))

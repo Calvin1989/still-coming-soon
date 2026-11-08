@@ -108,19 +108,36 @@ a.cell:hover { outline: 2px solid var(--ink); outline-offset: 1px; }
 
 /* ---------- 首页：各会议对比 ---------- */
 
+/* 按年份分节，像报纸的分栏标题：粗线 + 大号年份 */
+.jump { margin: 14px 0 0; font-size: 15px; color: var(--muted); }
+.jump a { margin-left: 10px; font-variant-numeric: tabular-nums; }
+.year { margin: 40px 0 0; scroll-margin-top: 16px; }
+.year-head {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 22px;
+  padding: 12px 0 4px; border-top: 2px solid var(--ink);
+}
+.year-head h2 {
+  margin: 0; font: 400 var(--t-hero)/1 var(--serif); font-variant-numeric: lining-nums;
+}
+.year-head p { margin: 0; max-width: 560px; color: var(--muted); font-size: 15px; }
+.upcoming { margin: 0; padding: 14px 0 0; color: var(--muted); font-size: 15px; max-width: 760px; }
+.venues + .upcoming { padding-top: 18px; border-top: 1px solid var(--rule); }
+
 .venues { margin: 8px 0 0; padding: 0; list-style: none; }
 .venue {
   display: grid; grid-template-columns: 180px 1fr; gap: 12px 32px;
   padding: 28px 0; border-top: 1px solid var(--rule);
 }
-.venue h2 { margin: 0; font: 400 var(--t-lead)/1.2 var(--serif); }
-.venue h2 a { color: var(--ink); text-decoration: none; }
-.venue h2 a:hover { text-decoration: underline; }
+.venue h3 { margin: 0; font: 400 var(--t-lead)/1.2 var(--serif); }
+.venue h3 a { color: var(--ink); text-decoration: none; }
+.venue h3 a:hover { text-decoration: underline; }
+.year-head + .venues .venue:first-child { border-top: 0; }
 .venue .rate { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
 .venue .rate { line-height: 1.5; }
 .venue .rate b { color: var(--red); font-weight: 600; font-size: var(--t-lead); }
 .venue .waffle { gap: 2px; }
 .venue .cell { width: 9px; height: 9px; }
+.venue .age { margin: 8px 0 0; color: var(--muted); font-size: var(--t-small); }
 .venue .open { margin: 12px 0 0; font-size: 15px; }
 
 /* ---------- 列表 ---------- */

@@ -19,7 +19,7 @@ It finds accepted conference papers on arXiv, works out which GitHub repository 
 | AAAI 2025 | 481 | 51 (10.6%) |
 | IJCAI 2025 | 143 | 17 (11.9%) |
 
-Machine learning conferences (ICML, ICLR, NeurIPS) are around 4%. Vision and ACL are around 8%. EMNLP, ACM MM, AAAI and IJCAI are above 10%. Checked on 2026-11-08; more in [Results](#results).
+Machine learning conferences (ICML, ICLR, NeurIPS) are around 4%. Vision and ACL are around 8%. EMNLP, ACM MM, AAAI and IJCAI are above 10%. Checked on 2026-11-08; more in [Results](#results). The 2026 conferences are being added as they pass 90 days.
 
 ## How it works
 
@@ -69,7 +69,12 @@ Tests: `pip install pytest ruff && ruff check . && pytest` (no network needed).
 
 ## Adding a venue
 
-Add a `[venues.<key>]` section to `pipeline/config.toml` with the arXiv query and the conference date, then add the key to `VENUES` in `.github/workflows/daily.yml` and to the `matrix` in `monthly.yml`.
+Add a `[venues.<key>]` section to `pipeline/config.toml` with the arXiv query and the conference date. Nothing else needs changing: the workflows ask `python -m scs venues` which venues to handle.
+
+- Once the conference has opened, the monthly job starts collecting its papers.
+- `[schedule] wait_days` (90) days after it opened, it appears on the site and is checked daily. Until then the front page lists it with the date it will appear.
+
+Venues for 2026 are already configured (AAAI, ICLR, CVPR, ICML, ACL, IJCAI, ECCV, EMNLP, ACM MM, NeurIPS) and come online on their own.
 
 ## Results
 

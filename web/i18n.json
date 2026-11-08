@@ -41,7 +41,13 @@
     "footer_correction": "Is an entry wrong, or is the code somewhere else? {link}. We only report facts and never show author names.",
     "correction_link": "Tell us and we will fix it",
     "about_title": "How it works",
-    "hero_compare": "At {low}, {low_pct} of papers that link their own repository still have no code in it. At {high}, it is {high_pct}."
+    "hero_compare": "At {low}, {low_pct} of papers that link their own repository still have no code in it. At {high}, it is {high_pct}.",
+    "venue_age": "Held {d} days ago",
+    "year_note": "{n} conferences, held {low}–{high} days ago. Compare within a year: younger conferences have had less time.",
+    "jump": "Jump to",
+    "upcoming": "Not shown yet. Each conference appears {wait} days after it opens, so authors have time to tidy up their code: {items}",
+    "upcoming_item": "{name} on {date}",
+    "upcoming_sep": ", "
   },
   "zh": {
     "lang_name": "中文",
@@ -85,6 +91,12 @@
     "footer_correction": "信息有误，或者代码放在了别处？{link}。我们只陈述事实，不显示作者名字。",
     "correction_link": "告诉我们，我们会更正",
     "about_title": "判定规则",
-    "hero_compare": "{low} 给了自己仓库链接的论文里，有 {low_pct} 至今没有代码；{high} 是 {high_pct}。"
+    "hero_compare": "{low} 给了自己仓库链接的论文里，有 {low_pct} 至今没有代码；{high} 是 {high_pct}。",
+    "venue_age": "开幕于 {d} 天前",
+    "year_note": "{n} 个会议，开幕于 {low}–{high} 天前。请在同一年内比较：越新的会议，作者整理代码的时间越短。",
+    "jump": "跳到",
+    "upcoming": "以下会议暂不展示。每个会议开幕 {wait} 天后才上线，给作者留出整理代码的时间：{items}",
+    "upcoming_item": "{name}（{date} 上线）",
+    "upcoming_sep": "、"
   }
 }

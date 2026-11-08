@@ -16,9 +16,6 @@ concurrency:
   group: pipeline
   cancel-in-progress: false
 
-env:
-  VENUES: "iclr2025 cvpr2025 aaai2025 neurips2025 icml2025 iccv2025 acl2025 emnlp2025 ijcai2025 acmmm2025"  # 空格分隔，对应 pipeline/config.toml 里的 [venues.*]
-
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -30,7 +27,10 @@ jobs:
       - name: Check repositories and build
         working-directory: pipeline
         run: |
-          for v in $VENUES; do
+          # 只处理开幕满 wait_days 天、且已经抓过论文的会议（见 pipeline/config.toml）
+          venues=$(python -m scs venues --when due --with-data)
+          echo "venues: $venues"
+          for v in $venues; do
             python -m scs links  --venue "$v"  # 不联网，几秒；规则改进后第二天自动生效
             python -m scs probe  --venue "$v"
             python -m scs build  --venue "$v"

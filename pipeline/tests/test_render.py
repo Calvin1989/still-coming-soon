@@ -20,10 +20,11 @@ ROW = {
 }
 
 
-def site(rows, no_repo=(), key="v1", name="ICLR 2025"):
+def site(rows, no_repo=(), key="v1", name="ICLR 2025", held=""):
     return {
         "venue": key,
         "name": name,
+        "conference_date": held,
         "built_on": "2026-01-02",
         "papers": 10,
         "papers_with_fulltext": 0,
@@ -69,6 +70,26 @@ def test_index_compares_venues(tmp_path):
     assert 'href="v1.html#p-2501.00001"' in html  # 方格链接到会议页里的那篇论文
     # 标题直接比较兑现率最高和最低的会议
     assert "At CVPR 2025, 0.0% of papers" in html and "At ICLR 2025, it is 33.3%." in html
+
+
+def test_index_groups_venues_by_year(tmp_path):
+    sites = [
+        site(rows(), key="old", name="ICLR 2025", held="2025-04-24"),
+        site(rows(), key="new1", name="AAAI 2026", held="2026-01-01"),
+        site([{**ROW, "status": "released"}], key="new2", name="X 2026", held="2026-01-01"),
+    ]
+    upcoming = [("2026", "ECCV 2026", "2026-12-07"), ("2027", "AAAI 2027", "2027-04-20")]
+    render_site(sites, tmp_path, upcoming=upcoming, wait_days=90)
+    html = (tmp_path / "index.html").read_text(encoding="utf-8")
+    # 新的年份在前，只有待上线会议的年份也有一节
+    assert html.index('id="y2027"') < html.index('id="y2026"') < html.index('id="y2025"')
+    assert html.index('href="new2.html"') < html.index('href="old.html"')
+    assert "Held 253 days ago" in html  # 2025-04-24 → 2026-01-02
+    assert "ECCV 2026 on 2026-12-07" in html
+    # 标题只比较同一年的会议
+    assert "At X 2026, 0.0% of papers" in html and "At AAAI 2026, it is 33.3%." in html
+    zh = (tmp_path / "zh" / "index.html").read_text(encoding="utf-8")
+    assert "ECCV 2026（2026-12-07 上线）" in zh
 
 
 def test_no_repo_papers_listed_but_not_in_squares(tmp_path):

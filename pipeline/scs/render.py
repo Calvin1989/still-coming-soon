@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+from datetime import date
 from html import escape
 from pathlib import Path
 from typing import Any
@@ -44,19 +45,18 @@ def _with_repo(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 # ---------- 页面内容 ----------
 
 
-def _hero_index(sites: list[dict[str, Any]], t: dict[str, Any]) -> str:
-    """两个会议以上时，标题直接说兑现率最高和最低的会议差多少。"""
-    rates = []
-    for site in sites:
-        rows = _with_repo(all_rows(site))
-        if rows:
-            rates.append((_not_delivered(rows) / len(rows), site["name"]))
-    if len(rates) < 2:
-        return t["hero_index"]
-    low, high = min(rates), max(rates)
-    return t["hero_compare"].format(
-        low=low[1], low_pct=f"{low[0]:.1%}", high=high[1], high_pct=f"{high[0]:.1%}"
-    )
+def _year(site: dict[str, Any]) -> str:
+    """会议年份。旧数据没有 conference_date 时从名字里取。"""
+    if site.get("conference_date"):
+        return site["conference_date"][:4]
+    found = re.search(r"20\d\d", site["name"])
+    return found.group(0) if found else ""
+
+
+def _days_since(site: dict[str, Any]) -> int | None:
+    if not site.get("conference_date"):
+        return None
+    return (date.fromisoformat(site["built_on"]) - date.fromisoformat(site["conference_date"])).days
 
 
 def _rate(site: dict[str, Any]) -> float:
@@ -64,23 +64,90 @@ def _rate(site: dict[str, Any]) -> float:
     return _not_delivered(rows) / len(rows) if rows else 0.0
 
 
-def index_content(sites: list[dict[str, Any]], t: dict[str, Any]) -> str:
-    blocks = []
-    for site in sorted(sites, key=_rate):  # 按未兑现比例从低到高，方便对比
-        rows = _with_repo(all_rows(site))
-        n, total = _not_delivered(rows), len(rows)
-        page = f"{site['venue']}.html"
-        blocks.append(
-            f'<li class="venue"><div><h2><a href="{page}">{escape(site["name"])}</a></h2>'
-            f'<p class="rate">{t["venue_rate"].format(pct=_pct(n, total), n=n, total=f"{total:,}")}'
-            f"</p></div><div>{waffle(rows, t, href_prefix=page)}"
-            f'<p class="open"><a href="{page}">{escape(t["venue_open"].format(n=n))}</a></p>'
-            f"</div></li>"
+def _by_year(sites: list[dict[str, Any]]) -> list[tuple[str, list[dict[str, Any]]]]:
+    """按年份分组，新的在前；同一年里按未兑现比例从低到高。"""
+    years: dict[str, list[dict[str, Any]]] = {}
+    for site in sites:
+        years.setdefault(_year(site), []).append(site)
+    return [(y, sorted(years[y], key=_rate)) for y in sorted(years, reverse=True)]
+
+
+def _hero_index(sites: list[dict[str, Any]], t: dict[str, Any]) -> str:
+    """标题比较同一年里兑现率最高和最低的会议（不同年份的会议过去的时间不同，不放在一起比）。
+
+    用有两个会议以上的最近一年；都只有一个会议时，用通用标题。
+    """
+    for _, group in _by_year(sites):
+        rated = [(_rate(s), s["name"]) for s in group if _with_repo(all_rows(s))]
+        if len(rated) >= 2:
+            low, high = min(rated), max(rated)
+            return t["hero_compare"].format(
+                low=low[1], low_pct=f"{low[0]:.1%}", high=high[1], high_pct=f"{high[0]:.1%}"
+            )
+    return t["hero_index"]
+
+
+def _venue_block(site: dict[str, Any], t: dict[str, Any]) -> str:
+    rows = _with_repo(all_rows(site))
+    n, total = _not_delivered(rows), len(rows)
+    page = f"{site['venue']}.html"
+    days = _days_since(site)
+    age = f'<p class="age">{escape(t["venue_age"].format(d=days))}</p>' if days is not None else ""
+    return (
+        f'<li class="venue"><div><h3><a href="{page}">{escape(site["name"])}</a></h3>'
+        f'<p class="rate">{t["venue_rate"].format(pct=_pct(n, total), n=n, total=f"{total:,}")}'
+        f"</p>{age}</div><div>{waffle(rows, t, href_prefix=page)}"
+        f'<p class="open"><a href="{page}">{escape(t["venue_open"].format(n=n))}</a></p>'
+        f"</div></li>"
+    )
+
+
+def _upcoming_note(items: list[tuple[str, str]], t: dict[str, Any], wait_days: int) -> str:
+    """还没到展示时间的会议：名字和上线日期。"""
+    if not items:
+        return ""
+    names = t["upcoming_sep"].join(
+        t["upcoming_item"].format(name=escape(name), date=day) for name, day in items
+    )
+    text = escape(t["upcoming"]).format(wait=wait_days, items=names)
+    return f'<p class="upcoming">{text}</p>'
+
+
+def index_content(
+    sites: list[dict[str, Any]],
+    t: dict[str, Any],
+    upcoming: list[tuple[str, str, str]] = (),
+    wait_days: int = 0,
+) -> str:
+    """upcoming：(年份, 会议名, 上线日期)，还没到展示时间的会议。"""
+    groups = dict(_by_year(sites))
+    for year, _, _ in upcoming:
+        groups.setdefault(year, [])
+    years = sorted(groups, reverse=True)
+    jump = ""
+    if len(years) > 1:
+        links = " ".join(f'<a href="#y{y}">{y}</a>' for y in years)
+        jump = f'<p class="jump">{escape(t["jump"])} {links}</p>'
+    sections = []
+    for year in years:
+        group = sorted(groups[year], key=_rate)
+        ages = [d for s in group if (d := _days_since(s)) is not None]
+        note = (
+            t["year_note"].format(n=len(group), low=min(ages), high=max(ages))
+            if ages and len(group) > 1
+            else ""
+        )
+        later = [(name, day) for y, name, day in upcoming if y == year]
+        blocks = "".join(_venue_block(s, t) for s in group)
+        sections.append(
+            f'<section class="year" id="y{year}"><header class="year-head"><h2>{year}</h2>'
+            f"<p>{escape(note)}</p></header>"
+            + (f'<ul class="venues">{blocks}</ul>' if blocks else "")
+            + f"{_upcoming_note(later, t, wait_days)}</section>"
         )
     return (
         f'<section class="hero"><h1>{escape(_hero_index(sites, t))}</h1>'
-        f"<p>{escape(t['lede_index'])}</p></section>"
-        f'<ul class="venues">{"".join(blocks)}</ul>'
+        f"<p>{escape(t['lede_index'])}</p>{jump}</section>" + "".join(sections)
     )
 
 
@@ -152,8 +219,13 @@ def render_site(
     out_dir: Path,
     repo_url: str = "",
     promise: re.Pattern[str] | None = None,
+    upcoming: list[tuple[str, str, str]] = (),
+    wait_days: int = 0,
 ) -> list[Path]:
-    """sites：各会议 build 生成的数据。promise：README 里承诺短语的正则，用来做荧光笔标记。"""
+    """sites：各会议 build 生成的数据。promise：README 里承诺短语的正则，用来做荧光笔标记。
+
+    upcoming：(年份, 会议名, 上线日期)，已配置但还没到展示时间的会议，首页上提一句。
+    """
     promise = promise or re.compile(r"coming soon|will be \w+", re.IGNORECASE)
     strings = json.loads((WEB_DIR / "i18n.json").read_text(encoding="utf-8"))
     checked = max(
@@ -167,7 +239,8 @@ def render_site(
         folder.mkdir(parents=True, exist_ok=True)
         root = "" if lang == "en" else "../"
         script = f'<script src="{root}static/app.js"></script>'
-        pages = [("index.html", t["title_index"], index_content(sites, t), "")]
+        index = index_content(sites, t, upcoming, wait_days)
+        pages = [("index.html", t["title_index"], index, "")]
         pages += [
             (
                 f"{s['venue']}.html",

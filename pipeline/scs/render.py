@@ -59,9 +59,14 @@ def _hero_index(sites: list[dict[str, Any]], t: dict[str, Any]) -> str:
     )
 
 
+def _rate(site: dict[str, Any]) -> float:
+    rows = _with_repo(all_rows(site))
+    return _not_delivered(rows) / len(rows) if rows else 0.0
+
+
 def index_content(sites: list[dict[str, Any]], t: dict[str, Any]) -> str:
     blocks = []
-    for site in sites:
+    for site in sorted(sites, key=_rate):  # 按未兑现比例从低到高，方便对比
         rows = _with_repo(all_rows(site))
         n, total = _not_delivered(rows), len(rows)
         page = f"{site['venue']}.html"

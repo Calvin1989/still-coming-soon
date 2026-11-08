@@ -248,3 +248,12 @@ still-coming-soon/
 - 看全文后，找到自己仓库的论文从约 1,400 篇增加到 2,159 篇，会议之间的差距保持（AAAI 是 ICLR 的近 3 倍）。
 - 第一次全量运行后逐条核对了"仓库已失效"，修掉了几类提取错误：两个网址连写（"CoLeG-Mathhttps"）、LaTeX 下划线的不同写法（`_\_`、HTML 里的 `˙`）、脚注命令残留（"00footnotetext"）、网址后紧跟下一句的单词（"TimeCAPSee"）。修复后失效数从 44 降到 26，抽查的都是真 404。
 - daily.yml 增加了重新找链接这一步（不联网，几秒），以后改进规则，第二天自动生效。
+
+## 13. 扩展到 10 个会议（2026-11-08）
+
+新增 NeurIPS 2025、ICML 2025、ICCV 2025、ACL 2025、EMNLP 2025、IJCAI 2025、ACM MM 2025。
+
+- 筛选规则：ACL 要排除 NAACL、EACL（用 `(?<![A-Za-z])ACL`）；ACL、EMNLP 只算主会，排除 Findings、Industry Track、System Demonstrations；ACM MM 的写法最多（"ACM MM 2025"、"ACM Multimedia 2025"、"MM '25"），同时排除 MMM、ICMM。
+- 首页按未兑现比例从低到高排列。
+- 只看摘要的预览：ICML 3.8%、NeurIPS 4.0%、ACL 5.0%、IJCAI 6.5%、ICCV 7.1%、ACM MM 8.9%、EMNLP 10.2%。全量正文分析由 monthly 完成后会更新。
+- 初步规律：机器学习三大会（ICLR、ICML、NeurIPS）约 4%，视觉会议（CVPR、ICCV）约 7%，AAAI、EMNLP、ACM MM 在 9%–11%。

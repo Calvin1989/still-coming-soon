@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  VENUES: "iclr2025 cvpr2025 aaai2025"  # 空格分隔，对应 pipeline/config.toml 里的 [venues.*]
+  VENUES: "iclr2025 cvpr2025 aaai2025 neurips2025 icml2025 iccv2025 acl2025 emnlp2025 ijcai2025 acmmm2025"  # 空格分隔，对应 pipeline/config.toml 里的 [venues.*]
 
 jobs:
   update:

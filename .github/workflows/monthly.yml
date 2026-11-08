@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        venue: [iclr2025, cvpr2025, aaai2025]  # 和 daily.yml 的 VENUES 保持一致
+        venue: [iclr2025, cvpr2025, aaai2025, neurips2025, icml2025, iccv2025, acl2025, emnlp2025, ijcai2025, acmmm2025]  # 和 daily.yml 的 VENUES 保持一致
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

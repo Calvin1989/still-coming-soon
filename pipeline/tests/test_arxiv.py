@@ -49,3 +49,30 @@ def test_parse_atom_and_filter():
     p = papers[0]
     assert p.published == "2025-01-23"
     assert "github.com/a/b" in p.text
+
+
+VENUES = config.load().venues
+
+
+@pytest.mark.parametrize(
+    ("venue", "comment", "accepted"),
+    [
+        ("acl2025", "Accepted to ACL 2025 main conference", True),
+        ("acl2025", "NAACL 2025", False),
+        ("acl2025", "EACL 2025 (long paper)", False),
+        ("acl2025", "Findings of ACL 2025", False),
+        ("emnlp2025", "Accepted to EMNLP 2025 Findings", False),
+        ("acmmm2025", "Accepted by ACM MM 2025", True),
+        ("acmmm2025", "MM '25, October 27-31, 2025, Dublin, Ireland", True),
+        ("acmmm2025", "ICMM 2025", False),
+        ("acmmm2025", "MMM 2025", False),
+        ("neurips2025", "NeurIPS 2025 Datasets and Benchmarks Track", True),
+        ("ijcai2025", "IJCAI-25", True),
+        ("iccv2025", "ICCV 2025 Workshop on X", False),
+        ("neurips2025", "Accepted in NeurIPS (2025)", True),
+        ("emnlp2025", "Accepted at EMNLP* 2025", True),
+        ("acmmm2025", "Accepted by ACM MM(2025)", True),
+    ],
+)
+def test_other_venues(venue, comment, accepted):
+    assert is_accepted(comment, VENUES[venue]) is accepted

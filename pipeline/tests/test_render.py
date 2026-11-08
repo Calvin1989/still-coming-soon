@@ -64,6 +64,8 @@ def test_index_compares_venues(tmp_path):
     html = (tmp_path / "index.html").read_text(encoding="utf-8")
     assert "<b>33.3%</b> not delivered<br>1 of 3 papers" in html
     assert "<b>0.0%</b> not delivered<br>0 of 1 papers" in html
+    # 按未兑现比例从低到高排列
+    assert html.index('href="v2.html"') < html.index('href="v1.html"')
     assert 'href="v1.html#p-2501.00001"' in html  # 方格链接到会议页里的那篇论文
     # 标题直接比较兑现率最高和最低的会议
     assert "At CVPR 2025, 0.0% of papers" in html and "At ICLR 2025, it is 33.3%." in html

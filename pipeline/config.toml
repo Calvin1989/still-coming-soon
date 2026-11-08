@@ -6,8 +6,8 @@ name = "ICLR 2025"
 conference_date = "2025-04-24"
 arxiv_query = '''co:"ICLR 2025" OR co:ICLR2025 OR co:"ICLR'25"'''
 # arXiv 备注里必须出现会议名
-# 能匹配 ICLR 2025 / ICLR2025 / ICLR'25 / ICLR-2025 / ICLR'2025 / (ICLR) 2025 / (ICLR), 2025
-include = ['''ICLR\)?[\s,'’-]*(?:20)?25\b''']
+# 能匹配 ICLR 2025 / ICLR2025 / ICLR'25 / ICLR-2025 / ICLR'2025 / (ICLR) 2025 / ICLR (2025) / ICLR* 2025
+include = ['''ICLR[\s,'’()*@-]*(?:20)?25\b''']
 # 出现这些词说明不是正式录用论文，排除（宁可漏收，不要错收）
 exclude = [
   'under review', 'submitted to', 'submission to', 'in submission',
@@ -18,7 +18,7 @@ exclude = [
 name = "CVPR 2025"
 conference_date = "2025-06-11"
 arxiv_query = '''co:"CVPR 2025" OR co:CVPR2025 OR co:"CVPR'25" OR co:"CVPR-25"'''
-include = ['''CVPR\)?[\s,'’-]*(?:20)?25\b''']
+include = ['''CVPR[\s,'’()*@-]*(?:20)?25\b''']
 exclude = [
   'under review', 'submitted to', 'submission to', 'in submission',
   'workshop', 'reject', 'withdr[ae]w', 'challenge', 'technical report', 'tech(?:nical)? report',
@@ -29,12 +29,88 @@ exclude = [
 name = "AAAI 2025"
 conference_date = "2025-02-25"
 arxiv_query = '''co:"AAAI 2025" OR co:AAAI2025 OR co:"AAAI'25" OR co:"AAAI-25"'''
-include = ['''AAAI\)?[\s,'’-]*(?:20)?25\b''']
+include = ['''AAAI[\s,'’()*@-]*(?:20)?25\b''']
 exclude = [
   'under review', 'submitted to', 'submission to', 'in submission',
   'workshop', 'reject', 'withdr[ae]w', 'student abstract', '\\bdemo\\b', '\\bbridge program',
   'doctoral consortium', 'undergraduate consortium', 'new faculty', 'senior member',
   '\\bsummit\\b', 'tutorial',
+]
+
+[venues.neurips2025]
+name = "NeurIPS 2025"
+conference_date = "2025-12-02"
+arxiv_query = '''co:"NeurIPS 2025" OR co:NeurIPS2025 OR co:"NeurIPS'25" OR co:"NeurIPS-25"'''
+include = ['''NeurIPS[\s,'’()*@-]*(?:20)?25\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'competition', 'creative ai', 'high school',
+]
+
+[venues.icml2025]
+name = "ICML 2025"
+conference_date = "2025-07-13"
+arxiv_query = '''co:"ICML 2025" OR co:ICML2025 OR co:"ICML'25" OR co:"ICML-25"'''
+include = ['''ICML[\s,'’()*@-]*(?:20)?25\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+]
+
+[venues.iccv2025]
+name = "ICCV 2025"
+conference_date = "2025-10-19"
+arxiv_query = '''co:"ICCV 2025" OR co:ICCV2025 OR co:"ICCV'25" OR co:"ICCV-25"'''
+include = ['''ICCV[\s,'’()*@-]*(?:20)?25\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'challenge', 'tech(?:nical)? report', 'competition',
+]
+
+[venues.acl2025]
+name = "ACL 2025"
+conference_date = "2025-07-27"
+arxiv_query = '''co:"ACL 2025" OR co:ACL2025 OR co:"ACL'25" OR co:"ACL-25"'''
+include = ['''(?<![A-Za-z])ACL[\s,'’()*@-]*(?:20)?25\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'findings', 'student research', 'system demonstration', 'shared task', 'industry track',
+]
+
+[venues.emnlp2025]
+name = "EMNLP 2025"
+conference_date = "2025-11-04"
+arxiv_query = '''co:"EMNLP 2025" OR co:EMNLP2025 OR co:"EMNLP'25" OR co:"EMNLP-25"'''
+include = ['''EMNLP[\s,'’()*@-]*(?:20)?25\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'findings', 'student research', 'system demonstration', 'shared task', 'industry track',
+]
+
+[venues.ijcai2025]
+name = "IJCAI 2025"
+conference_date = "2025-08-16"
+arxiv_query = '''co:"IJCAI 2025" OR co:IJCAI2025 OR co:"IJCAI'25" OR co:"IJCAI-25"'''
+include = ['''IJCAI[\s,'’()*@-]*(?:20)?25\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'doctoral consortium', 'survey track', 'early career',
+]
+
+[venues.acmmm2025]
+name = "ACM MM 2025"
+conference_date = "2025-10-27"
+arxiv_query = '''co:"ACM MM 2025" OR co:"ACM Multimedia 2025" OR co:"ACM MM'25" OR co:"MM '25" OR co:"MM 2025" OR co:ACMMM2025 OR co:"ACM MM25"'''
+include = ['''(?:ACM\s*(?:MM|Multimedia)|(?<![A-Za-z])MM)[\s,'’()*@-]*(?:20)?25\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'grand challenge', 'challenge', 'brave new ideas', 'open source competition', 'doctoral',
 ]
 
 [classify]

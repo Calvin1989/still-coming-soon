@@ -8,9 +8,9 @@ It finds accepted conference papers on arXiv, works out which GitHub repository 
 
 | Conference | Papers with their own repository | Not delivered |
 |---|---|---|
-| ICLR 2025 | 613 | 20 (3.3%) |
-| CVPR 2025 | 472 | 37 (7.8%) |
-| AAAI 2025 | 303 | 29 (9.6%) |
+| ICLR 2025 | 1,022 | 39 (3.8%) |
+| CVPR 2025 | 655 | 49 (7.5%) |
+| AAAI 2025 | 482 | 51 (10.6%) |
 
 Checked on 2026-11-08. More in [Results](#results).
 
@@ -66,17 +66,17 @@ Add a `[venues.<key>]` section to `pipeline/config.toml` with the arXiv query an
 
 ## Results
 
-Measured on 2026-11-08.
+Measured on 2026-11-08, from the full text of every paper (arXiv HTML version).
 
 | Conference | Accepted papers found on arXiv | With their own repository | Empty | A few lines | Gone | Not delivered |
 |---|---|---|---|---|---|---|
-| ICLR 2025 | 1,626 | 613 | 15 | 3 | 2 | 3.3% |
-| CVPR 2025 | 1,393 | 472 | 28 | 4 | 5 | 7.8% |
-| AAAI 2025 | 1,205 | 303 | 22 | 3 | 4 | 9.6% |
+| ICLR 2025 | 1,626 | 1,022 | 23 | 5 | 11 | 3.8% |
+| CVPR 2025 | 1,393 | 655 | 37 | 6 | 6 | 7.5% |
+| AAAI 2025 | 1,205 | 482 | 36 | 6 | 9 | 10.6% |
 
-- Repository links come from the full text for a random sample (300 ICLR papers, 150 CVPR, 150 AAAI) and from the arXiv abstract for the rest. On the samples, the full-text rates agree with the table (4.8%, 8.2%, 7.2%). The full run happens in `monthly.yml`.
-- The difference between ICLR and the other two is statistically significant (two-proportion z ≈ 3.3 and 4.0).
+- The differences between ICLR and the other two conferences are statistically significant.
 - Not counted as not delivered: repositories with data only, links described only as a project page, and papers whose arXiv version gives no repository (it may still be the double-blind review version).
+- Every “repository gone” entry was re-checked by hand on the first full run; several turned out to be extraction errors (two URLs written together, LaTeX leftovers in the name) and were fixed.
 
 ## License
 

@@ -31,6 +31,7 @@ jobs:
         working-directory: pipeline
         run: |
           for v in $VENUES; do
+            python -m scs links  --venue "$v"  # 不联网，几秒；规则改进后第二天自动生效
             python -m scs probe  --venue "$v"
             python -m scs build  --venue "$v"
           done
@@ -39,7 +40,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/snapshots
+          git add data/links data/snapshots
           git diff --cached --quiet && exit 0
           git commit -m "data: daily check $(date -u +%F)"
           for i in 1 2 3; do git pull --rebase && git push && exit 0; sleep $((i * 10)); done

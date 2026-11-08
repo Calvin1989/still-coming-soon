@@ -3,10 +3,12 @@ import pytest
 from scs.links import (
     anonymous_link,
     choose_from_fulltext,
+    extract_repos,
     is_page_only,
     is_self_reference,
     link_for,
     promise_without_link,
+    quote_with_link,
     resolve,
 )
 from scs.models import Fragment, FullText, Paper
@@ -190,3 +192,44 @@ def test_project_page_link_is_not_a_code_promise():
         "arxiv:1", "v", "t", "u", "2025-01-01", "x\nAAAI 2025; Project page: https://github.com/a/b"
     )
     assert link_for(paper) is None
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        # 以下都来自全量正文分析里被误判为"仓库已失效"的真实论文
+        (
+            "Code: https://github.com/XinXU-USTC/CoLeG-Mathhttps://github.com/XinXU-USTC/CoLeG-Math",
+            "XinXU-USTC/CoLeG-Math",
+        ),
+        (
+            "at https://github.com/thu-vis/SE-based_\\_sample_\\_selection..",
+            "thu-vis/SE-based_sample_selection",
+        ),
+        (
+            "Our code: https://github.com/LIAAD/portuguese˙vid to promote reproducibility",
+            "LIAAD/portuguese_vid",
+        ),
+        ("Source code: https://github.com/AmayaGS/BioX-CPath00footnotetext", "AmayaGS/BioX-CPath"),
+        ("Our code: https://github.com/aio-libs/aiohttp is a library", "aio-libs/aiohttp"),
+    ],
+)
+def test_repo_name_artifacts(text, expected):
+    assert extract_repos(text) == [expected]
+
+
+def test_concatenated_next_word_uses_shorter_name_seen_elsewhere():
+    f = full(
+        ("body", [], "Our code is available at https://github.com/geon0325/TimeCAPSee Table 2."),
+        (
+            "body",
+            [],
+            "Datasets are at https://github.com/geon0325/TimeCAP. The code is on request.",
+        ),
+    )
+    assert choose_from_fulltext(f).repo == "geon0325/TimeCAP"
+
+
+def test_long_quote_keeps_the_link():
+    quote = quote_with_link("Our code is available at " + "x" * 400, "a/b")
+    assert quote.startswith("…") and quote.endswith("github.com/a/b") and len(quote) == 320

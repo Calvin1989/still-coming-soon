@@ -100,7 +100,15 @@ _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z(])|(?<=[a-z]{2}[.!?])(?=[A-Z
 _URL_PREFIX = re.compile(r"\s*(?:https?://)?(?:www\.)?$", re.IGNORECASE)
 
 
-def _clean_name(name: str) -> str:
+_FOOTNOTE_TAIL = re.compile(r"\d*footnotetext$", re.IGNORECASE)
+_SCHEME_TAIL = re.compile(r"https?$", re.IGNORECASE)
+
+
+def _clean_name(name: str, following: str = "") -> str:
+    """去掉粘在仓库名后面的东西。following 是原文里紧跟在仓库名后面的几个字符。"""
+    name = _FOOTNOTE_TAIL.sub("", name)  # LaTeX 残留："BioX-CPath00footnotetext"
+    if following.startswith("://"):  # 两个网址连写："CoLeG-Mathhttps://github.com/…"
+        name = _SCHEME_TAIL.sub("", name)
     name = name.rstrip(".,;:_-")
     if name.lower().endswith(".git"):
         name = name[:-4]
@@ -116,7 +124,8 @@ _LATEX_LINK = re.compile(r"\\(?:href|url)\s*\{\s*|(?<=\S)\}\s*\{[^}]*\}")
 
 
 def _normalize(text: str) -> str:
-    text = text.replace("\\_", "_")  # arXiv 摘要里下划线常写成 LaTeX 转义 \_
+    # 下划线的各种 LaTeX 写法：\_、_\_（还原后会变成两个下划线）、HTML 版里的 ˙
+    text = text.replace("_\\_", "_").replace("\\_", "_").replace("˙", "_")
     text = _LATEX_LINK.sub("", text)  # 摘要里残留的 \href{…}{…}、\url{…}
     text = _INLINE_FOOTNOTE.sub("\n", text)  # 脚注编号处换行，当作句子边界
     return _NOTE_PREFIX.sub(" ", text)
@@ -125,8 +134,9 @@ def _normalize(text: str) -> str:
 def find_repos(text: str) -> list[tuple[str, int]]:
     """返回 [(owner/name, 在文本中的位置)]，按出现顺序，未去重。"""
     found = []
-    for m in _REPO.finditer(_normalize(text)):
-        owner, name = m.group(1), _clean_name(m.group(2))
+    text = _normalize(text)
+    for m in _REPO.finditer(text):
+        owner, name = m.group(1), _clean_name(m.group(2), text[m.end() : m.end() + 3])
         if name and owner.lower() not in _RESERVED_OWNERS:
             found.append((f"{owner}/{name}", m.start()))
     return found
@@ -141,8 +151,9 @@ def extract_repos(text: str) -> list[str]:
 
 
 def quote_with_link(sentence: str, repo: str) -> str:
-    """网站上展示的论文原话：那句话 + 链接本身。"""
-    return " ".join(f"{sentence} github.com/{repo}".split())[:320]
+    """网站上展示的论文原话：那句话 + 链接本身。太长时截掉开头，保证链接还在。"""
+    quote = " ".join(f"{sentence} github.com/{repo}".split())
+    return quote if len(quote) <= 320 else "…" + quote[-319:]
 
 
 def sentence_before(text: str, pos: int) -> str:
@@ -203,11 +214,34 @@ def _candidates(fragment: Fragment) -> Iterable[tuple[str, str]]:
 
 
 def _complete(repo: str, href_repos: list[str]) -> str:
-    """段落文字被截断时（例如 "mllms_know" 只剩 "mllms_"），用链接地址里的完整仓库名。"""
+    """文字里的仓库名和链接地址里的对不上时，以链接地址为准。
+
+    文字被截断："mllms_" → 地址里是 "mllms_know"；文字粘了后文："TimeCAPSee" → 地址里是 "TimeCAP"。
+    """
+    r = repo.lower()
     for full in href_repos:
-        if full.lower() != repo.lower() and full.lower().startswith(repo.lower()):
+        f = full.lower()
+        if f != r and (f.startswith(r) or r.startswith(f)):
             return full
     return repo
+
+
+_GLUED_WORD = re.compile(r"[A-Z][a-z]")
+
+
+def _shortest_prefix(repo: str, others: list[str]) -> str:
+    """论文别处出现过同一作者下更短的同名仓库时（"TimeCAP" 和 "TimeCAPSee"），用短的那个。
+
+    只在多出来的部分像是粘上来的新单词时才换（"See"）；
+    文字被截断的情况（"mllms" 和 "mllms_know"）不换。
+    """
+    r = repo.lower()
+    prefixes = [
+        o
+        for o in others
+        if r.startswith(o.lower()) and len(o) < len(repo) and _GLUED_WORD.match(repo[len(o) :])
+    ]
+    return min(prefixes, key=len) if prefixes else repo
 
 
 def choose_from_fulltext(full: FullText) -> RepoLink | None:
@@ -227,6 +261,14 @@ def choose_from_fulltext(full: FullText) -> RepoLink | None:
     if best is None:
         return None
     _, _, repo, sentence, kind = best
+    seen_anywhere = [
+        r
+        for frag in full.fragments
+        if frag.kind not in _NEVER_OWN
+        for source in (frag.text, *frag.hrefs)
+        for r, _ in find_repos(source)
+    ]
+    repo = _shortest_prefix(repo, seen_anywhere)
     return RepoLink(
         paper_id=full.paper_id,
         repo=repo,

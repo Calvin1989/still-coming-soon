@@ -343,7 +343,7 @@ exclude = [
 ]
 
 # ---------- 2027 ----------
-# 只加了官网已公布日期的会议。EMNLP、NeurIPS、ACM MM 2027 公布日期后再加。
+# 手写的是官网已公布日期的会议。EMNLP、NeurIPS、ACM MM 2027 公布日期后由 daily 自动加入（见 [auto]）。
 
 [venues.aaai2027]
 name = "AAAI 2027"
@@ -421,6 +421,12 @@ exclude = [
   'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
   'challenge', 'tech(?:nical)? report', 'competition',
 ]
+
+[auto]
+# 会议公布日期后自动加入，不用改这个文件：daily 从 ccfddl/ccf-deadlines（ccfddl.com 的数据）
+# 读取下面这些会议每年的日期，config.toml 里还没有的年份记到 data/schedule.json，
+# 设置从同一会议最近一年复制、只改年份。日期取正会第一天。手写在上面的会议优先。
+series = { aaai = "AI/aaai", iclr = "AI/iclr", cvpr = "AI/cvpr", icml = "AI/icml", acl = "AI/acl", ijcai = "AI/ijcai", iccv = "AI/iccv", eccv = "AI/eccv", emnlp = "AI/emnlp", acmmm = "CG/mm", neurips = "AI/nips" }
 
 [schedule]
 # 会议开幕多少天后才在网站上展示：给作者留出整理代码的时间，免得会议刚开就被标成"没兑现"。

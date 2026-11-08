@@ -19,13 +19,13 @@ from collections import Counter
 from datetime import date
 from pathlib import Path
 
-from scs import config, store
+from scs import config, schedule, store
 from scs.build import build_venue
 from scs.links import fallback_repos, resolve
 from scs.probe import probe_many
 from scs.render import render_site
 from scs.render_index import Upcoming
-from scs.sources import arxiv_html
+from scs.sources import arxiv_html, ccfddl
 from scs.sources.arxiv import ArxivSource
 
 
@@ -121,6 +121,22 @@ def cmd_build(args: argparse.Namespace, cfg: config.Config) -> None:
     print(f"       没有仓库但有承诺：{site['no_repo_counts']}")
 
 
+def cmd_schedule(args: argparse.Namespace, cfg: config.Config) -> None:
+    """从 ccfddl 发现新公布日期的会议，写到 data/schedule.json。"""
+    manual = {k: v for k, v in cfg.venues.items() if k not in cfg.auto_keys}
+    found, failed = schedule.discover(cfg.auto_series, manual, ccfddl.fetch)
+    path = config.DEFAULT_SCHEDULE
+    old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    merged = schedule.merge(old, found, failed)
+    path.write_text(json.dumps(merged, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    for key in sorted(set(merged) - set(old)):
+        entry = merged[key]
+        print(f"schedule: 新公布 {key}，开幕 {entry['conference_date']}（{entry['said']}）")
+    if failed:
+        print(f"schedule: 读取失败，保留原来的记录：{', '.join(failed)}")
+    print(f"schedule: 自动加入的会议共 {len(merged)} 个")
+
+
 def cmd_venues(args: argparse.Namespace, cfg: config.Config) -> None:
     """列出该处理的会议。
 
@@ -154,6 +170,7 @@ def cmd_render(args: argparse.Namespace, cfg: config.Config) -> None:
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="scs")
     sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("schedule")
     for name in ("papers", "fulltext", "links", "probe", "build", "render", "venues"):
         p = sub.add_parser(name)
         if name == "venues":
@@ -180,5 +197,6 @@ def main(argv: list[str] | None = None) -> None:
         "build": cmd_build,
         "render": cmd_render,
         "venues": cmd_venues,
+        "schedule": cmd_schedule,
     }
     commands[args.command](args, cfg)

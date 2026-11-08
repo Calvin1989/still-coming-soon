@@ -69,7 +69,9 @@ Tests: `pip install pytest ruff && ruff check . && pytest` (no network needed).
 
 ## Adding a venue
 
-Add a `[venues.<key>]` section to `pipeline/config.toml` with the arXiv query and the conference date. Nothing else needs changing: the workflows ask `python -m scs venues` which venues to handle.
+New editions of the tracked conferences are added automatically. Every day the pipeline reads the conference dates in [ccfddl/ccf-deadlines](https://github.com/ccfddl/ccf-deadlines); when a new year's date is announced, it copies the settings of the previous year with the year changed and records the date in `data/schedule.json`.
+
+To track a different conference, add a `[venues.<key>]` section to `pipeline/config.toml` with the arXiv query and the conference date (and its ccfddl file under `[auto]` to keep later years coming). A section written there takes precedence over an automatic one. Nothing else needs changing: the workflows ask `python -m scs venues` which venues to handle.
 
 - Once the conference has opened, the monthly job starts collecting its papers.
 - `[schedule] wait_days` (90) days after it opened, it appears on the site and is checked daily. Until then the front page lists it with the date it will appear.

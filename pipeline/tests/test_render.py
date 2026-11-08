@@ -79,7 +79,10 @@ def test_year_pages_and_trend_table(tmp_path):
         site(rows(), key="aaai2026", name="AAAI 2026", held="2026-01-01"),
         site([{**ROW, "status": "released"}], key="iclr2026", name="ICLR 2026", held="2026-01-01"),
     ]
-    upcoming = [Upcoming("eccv2026", "ECCV 2026", "2026", "2026-12-07")]
+    upcoming = [
+        Upcoming("eccv2026", "ECCV 2026", "2026", "2026-12-07"),
+        Upcoming("aaai2027", "AAAI 2027", "2027", "2027-05-17"),
+    ]
     render_site(sites, tmp_path, upcoming=upcoming, wait_days=90)
     index = (tmp_path / "index.html").read_text(encoding="utf-8")
 
@@ -97,6 +100,9 @@ def test_year_pages_and_trend_table(tmp_path):
     iclr = table[table.index(">ICLR<") :].split("</tr>")[0]
     assert iclr.count('class="pct"') == 2 and 'href="iclr2025.html"' in iclr
     assert ">from Dec 7<" in table
+    # 还没有结果的 2027 年不单独成页、不占一列，列在最新一年的"暂不展示"里
+    assert ">2027<" not in index and not (tmp_path / "2027.html").exists()
+    assert "ECCV 2026 on 2026-12-07, AAAI 2027 on 2027-05-17" in index
     assert "held 253 days ago" in table  # 2025-04-24 → 2026-01-02
     old = (tmp_path / "2025.html").read_text(encoding="utf-8")
     assert '<a href="2025.html#years" aria-current="page">2025</a>' in old

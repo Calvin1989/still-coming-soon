@@ -74,7 +74,7 @@ Add a `[venues.<key>]` section to `pipeline/config.toml` with the arXiv query an
 - Once the conference has opened, the monthly job starts collecting its papers.
 - `[schedule] wait_days` (90) days after it opened, it appears on the site and is checked daily. Until then the front page lists it with the date it will appear.
 
-Configured: the 2024, 2025 and 2026 editions of AAAI, ICLR, CVPR, ICML, ACL, IJCAI, EMNLP, ACM MM and NeurIPS, plus ICCV 2025 and ECCV 2024/2026 (30 venues). The 2026 ones come online on their own.
+Configured: the 2024, 2025 and 2026 editions of AAAI, ICLR, CVPR, ICML, ACL, IJCAI, EMNLP, ACM MM and NeurIPS, plus ICCV 2025 and ECCV 2024/2026, and the 2027 conferences whose dates are already announced (AAAI, ICLR, CVPR, ICML, IJCAI, ACL, ICCV): 37 venues. Each comes online on its own 90 days after it opens.
 
 ## Results
 

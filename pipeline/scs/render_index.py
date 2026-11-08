@@ -72,8 +72,12 @@ def series_name(name: str) -> str:
 
 
 def years_of(sites: list[dict[str, Any]], upcoming: list[Upcoming]) -> list[str]:
-    """所有出现过的年份，新的在前。"""
-    return sorted({year_of(s) for s in sites} | {u.year for u in upcoming}, reverse=True)
+    """网站上显示的年份，新的在前：有结果的年份。
+
+    还没有任何结果的年份不单独显示，它的会议列在最新一年的"暂不展示"里。
+    """
+    with_data = {year_of(s) for s in sites}
+    return sorted(with_data or {u.year for u in upcoming}, reverse=True)
 
 
 def default_year(sites: list[dict[str, Any]], upcoming: list[Upcoming]) -> str:
@@ -135,6 +139,8 @@ def trend_table(sites: list[dict[str, Any]], upcoming: list[Upcoming], t: dict[s
             f'<span class="bar" style="width:{round(rate(s) / top * BAR_PX)}px"></span></a></td>'
         )
     for u in upcoming:
+        if u.year not in years:
+            continue
         key = series_of(u.venue)
         names.setdefault(key, series_name(u.name))
         cells[key, u.year] = f'<td class="soon">{escape(_short_date(u.shown_from, t))}</td>'
@@ -213,7 +219,12 @@ def year_content(
 ) -> str:
     """一个年份页的完整内容。sites、upcoming 是所有年份的，用于对比表和标签。"""
     group = sorted((s for s in sites if year_of(s) == year), key=rate)
-    later = [u for u in upcoming if u.year == year]
+    shown = years_of(sites, upcoming)
+    # 这一年还没上线的会议；最新一年还要加上那些还没有任何结果的年份的会议
+    later = sorted(
+        (u for u in upcoming if u.year == year or (year == shown[0] and u.year not in shown)),
+        key=lambda u: u.shown_from,
+    )
     ages = _age_range(group)
     note = ""
     if ages and len(group) > 1:
@@ -221,12 +232,12 @@ def year_content(
     elif not group:
         note = t["year_empty"]
     blocks = "".join(_venue_block(s, t) for s in group)
-    trend = trend_table(sites, upcoming, t) if len(years_of(sites, upcoming)) > 1 else ""
+    trend = trend_table(sites, upcoming, t) if len(shown) > 1 else ""
     return (
         f'<section class="hero"><h1>{escape(hero(group, t))}</h1>'
         f"<p>{escape(t['lede_index'])}</p></section>"
         f"{trend}"
-        f"{year_tabs(years_of(sites, upcoming), year, t)}"
+        f"{year_tabs(shown, year, t)}"
         f'<p class="year-note">{escape(note)}</p>'
         + (f'<ul class="venues">{blocks}</ul>' if blocks else "")
         + _upcoming_note(later, t, wait_days)

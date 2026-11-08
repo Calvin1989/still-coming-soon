@@ -342,6 +342,86 @@ exclude = [
   'competition', 'creative ai', 'high school',
 ]
 
+# ---------- 2027 ----------
+# 只加了官网已公布日期的会议。EMNLP、NeurIPS、ACM MM 2027 公布日期后再加。
+
+[venues.aaai2027]
+name = "AAAI 2027"
+conference_date = "2027-02-16"
+arxiv_query = '''co:"AAAI 2027" OR co:AAAI2027 OR co:"AAAI'27" OR co:"AAAI-27"'''
+include = ['''AAAI[\s,'’()*@-]*(?:20)?27\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'student abstract', '\\bbridge program', 'doctoral consortium', 'undergraduate consortium',
+  'new faculty', 'senior member', '\\bsummit\\b',
+]
+
+[venues.iclr2027]
+name = "ICLR 2027"
+conference_date = "2027-04-26"
+arxiv_query = '''co:"ICLR 2027" OR co:ICLR2027 OR co:"ICLR'27" OR co:"ICLR-27"'''
+include = ['''ICLR[\s,'’()*@-]*(?:20)?27\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'tiny ?paper', 'blog ?post',
+]
+
+[venues.cvpr2027]
+name = "CVPR 2027"
+conference_date = "2027-06-20"
+arxiv_query = '''co:"CVPR 2027" OR co:CVPR2027 OR co:"CVPR'27" OR co:"CVPR-27"'''
+include = ['''CVPR[\s,'’()*@-]*(?:20)?27\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'challenge', 'tech(?:nical)? report', 'competition',
+]
+
+[venues.icml2027]
+name = "ICML 2027"
+conference_date = "2027-07-31"
+arxiv_query = '''co:"ICML 2027" OR co:ICML2027 OR co:"ICML'27" OR co:"ICML-27"'''
+include = ['''ICML[\s,'’()*@-]*(?:20)?27\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+]
+
+[venues.ijcai2027]
+name = "IJCAI 2027"
+conference_date = "2027-08-07"
+arxiv_query = '''co:"IJCAI 2027" OR co:IJCAI2027 OR co:"IJCAI'27" OR co:"IJCAI-27"'''
+include = ['''IJCAI[\s,'’()*@-]*(?:20)?27\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'doctoral consortium', 'survey track', 'early career',
+]
+
+[venues.acl2027]
+name = "ACL 2027"
+conference_date = "2027-08-17"
+arxiv_query = '''co:"ACL 2027" OR co:ACL2027 OR co:"ACL'27" OR co:"ACL-27"'''
+include = ['''(?<![A-Za-z])ACL[\s,'’()*@-]*(?:20)?27\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'findings', 'student research', 'system demonstration', 'shared task', 'industry track',
+]
+
+[venues.iccv2027]
+name = "ICCV 2027"
+conference_date = "2027-10-02"
+arxiv_query = '''co:"ICCV 2027" OR co:ICCV2027 OR co:"ICCV'27" OR co:"ICCV-27"'''
+include = ['''ICCV[\s,'’()*@-]*(?:20)?27\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'challenge', 'tech(?:nical)? report', 'competition',
+]
+
 [schedule]
 # 会议开幕多少天后才在网站上展示：给作者留出整理代码的时间，免得会议刚开就被标成"没兑现"。
 wait_days = 90

@@ -24,6 +24,7 @@ from scs.build import build_venue
 from scs.links import resolve
 from scs.probe import probe_many
 from scs.render import render_site
+from scs.render_index import Upcoming
 from scs.sources import arxiv_html
 from scs.sources.arxiv import ArxivSource
 
@@ -128,7 +129,7 @@ def cmd_render(args: argparse.Namespace, cfg: config.Config) -> None:
     promise = re.compile("|".join(p.pattern for p in cfg.classify.promise_phrases), re.IGNORECASE)
     today = date.today()
     upcoming = [
-        (v.year, v.name, v.shown_from(cfg.wait_days).isoformat())
+        Upcoming(v.key, v.name, v.year, v.shown_from(cfg.wait_days).isoformat())
         for v in cfg.venues.values()
         if not v.due(today, cfg.wait_days)
     ]

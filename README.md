@@ -19,7 +19,7 @@ It finds accepted conference papers on arXiv, works out which GitHub repository 
 | AAAI 2025 | 481 | 51 (10.6%) |
 | IJCAI 2025 | 143 | 17 (11.9%) |
 
-Machine learning conferences (ICML, ICLR, NeurIPS) are around 4%. Vision and ACL are around 8%. EMNLP, ACM MM, AAAI and IJCAI are above 10%. Checked on 2026-11-08; more in [Results](#results). The 2026 conferences are being added as they pass 90 days.
+Machine learning conferences (ICML, ICLR, NeurIPS) are around 4%. Vision and ACL are around 8%. EMNLP, ACM MM, AAAI and IJCAI are above 10%. Checked on 2026-11-08; more in [Results](#results). 2024 and 2026 conferences are being added; the site has a page per year and a year-by-year table.
 
 ## How it works
 
@@ -74,7 +74,7 @@ Add a `[venues.<key>]` section to `pipeline/config.toml` with the arXiv query an
 - Once the conference has opened, the monthly job starts collecting its papers.
 - `[schedule] wait_days` (90) days after it opened, it appears on the site and is checked daily. Until then the front page lists it with the date it will appear.
 
-Venues for 2026 are already configured (AAAI, ICLR, CVPR, ICML, ACL, IJCAI, ECCV, EMNLP, ACM MM, NeurIPS) and come online on their own.
+Configured: the 2024, 2025 and 2026 editions of AAAI, ICLR, CVPR, ICML, ACL, IJCAI, EMNLP, ACM MM and NeurIPS, plus ICCV 2025 and ECCV 2024/2026 (30 venues). The 2026 ones come online on their own. For 2024, papers first posted before December 2023 have no arXiv HTML version, so only their abstract is read.
 
 ## Results
 

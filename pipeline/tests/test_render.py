@@ -1,6 +1,7 @@
 import re
 
 from scs.render import render_site
+from scs.render_index import Upcoming
 from scs.render_parts import entry_id, human_size, marked
 
 ROW = {
@@ -72,24 +73,41 @@ def test_index_compares_venues(tmp_path):
     assert "At CVPR 2025, 0.0% of papers" in html and "At ICLR 2025, it is 33.3%." in html
 
 
-def test_index_groups_venues_by_year(tmp_path):
+def test_year_pages_and_trend_table(tmp_path):
     sites = [
-        site(rows(), key="old", name="ICLR 2025", held="2025-04-24"),
-        site(rows(), key="new1", name="AAAI 2026", held="2026-01-01"),
-        site([{**ROW, "status": "released"}], key="new2", name="X 2026", held="2026-01-01"),
+        site(rows(), key="iclr2025", name="ICLR 2025", held="2025-04-24"),
+        site(rows(), key="aaai2026", name="AAAI 2026", held="2026-01-01"),
+        site([{**ROW, "status": "released"}], key="iclr2026", name="ICLR 2026", held="2026-01-01"),
     ]
-    upcoming = [("2026", "ECCV 2026", "2026-12-07"), ("2027", "AAAI 2027", "2027-04-20")]
+    upcoming = [Upcoming("eccv2026", "ECCV 2026", "2026", "2026-12-07")]
     render_site(sites, tmp_path, upcoming=upcoming, wait_days=90)
-    html = (tmp_path / "index.html").read_text(encoding="utf-8")
-    # 新的年份在前，只有待上线会议的年份也有一节
-    assert html.index('id="y2027"') < html.index('id="y2026"') < html.index('id="y2025"')
-    assert html.index('href="new2.html"') < html.index('href="old.html"')
-    assert "Held 253 days ago" in html  # 2025-04-24 → 2026-01-02
-    assert "ECCV 2026 on 2026-12-07" in html
+    index = (tmp_path / "index.html").read_text(encoding="utf-8")
+
+    # 首页是有数据的最新一年；每一年都有自己的页面
+    def main(html):
+        return html[html.index("<main>") : html.index("</main>")]
+
+    assert main(index) == main((tmp_path / "2026.html").read_text(encoding="utf-8"))
+    assert '<a href="2026.html#years" aria-current="page">2026</a>' in index
     # 标题只比较同一年的会议
-    assert "At X 2026, 0.0% of papers" in html and "At AAAI 2026, it is 33.3%." in html
+    assert "At ICLR 2026, 0.0% of papers" in index and "At AAAI 2026, it is 33.3%." in index
+    # 对比表：一行一个会议系列，年份从早到晚，还没上线的写上线日期
+    table = index[index.index("<table>") : index.index("</table>")]
+    assert table.index(">2025<") < table.index(">2026<")
+    iclr = table[table.index(">ICLR<") :].split("</tr>")[0]
+    assert iclr.count('class="pct"') == 2 and 'href="iclr2025.html"' in iclr
+    assert ">from Dec 7<" in table
+    assert "held 253 days ago" in table  # 2025-04-24 → 2026-01-02
+    old = (tmp_path / "2025.html").read_text(encoding="utf-8")
+    assert '<a href="2025.html#years" aria-current="page">2025</a>' in old
+    assert 'href="aaai2026.html"' in old  # 表里有，下面的方格图里没有
+    assert old.count('class="venue"') == 1
+    # 会议页链接到同一会议的其他年份
+    page = (tmp_path / "iclr2025.html").read_text(encoding="utf-8")
+    assert '<a href="2025.html#years">All 2025 conferences</a>' in page
+    assert '<a href="iclr2026.html">ICLR 2026</a>' in page
     zh = (tmp_path / "zh" / "index.html").read_text(encoding="utf-8")
-    assert "ECCV 2026（2026-12-07 上线）" in zh
+    assert ">12 月 7 日上线<" in zh
 
 
 def test_no_repo_papers_listed_but_not_in_squares(tmp_path):

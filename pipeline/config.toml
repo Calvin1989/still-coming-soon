@@ -1,5 +1,7 @@
 # 所有阈值、白名单、会议设置都放在这里，代码里不写死。
 
+# ---------- 2025 ----------
+
 [venues.iclr2025]
 name = "ICLR 2025"
 # 会议开幕日期。承诺天数从"论文首次公开"和"会议开幕"中较晚的那天算起。
@@ -111,6 +113,119 @@ exclude = [
   'under review', 'submitted to', 'submission to', 'in submission',
   'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
   'grand challenge', 'challenge', 'brave new ideas', 'open source competition', 'doctoral',
+]
+
+# ---------- 2024 ----------
+# 和 2026 年同样的规则。2023 年 12 月以前提交的论文 arXiv 没有 HTML 版，只能看摘要。
+
+[venues.aaai2024]
+name = "AAAI 2024"
+conference_date = "2024-02-20"
+arxiv_query = '''co:"AAAI 2024" OR co:AAAI2024 OR co:"AAAI'24" OR co:"AAAI-24"'''
+include = ['''AAAI[\s,'’()*@-]*(?:20)?24\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'student abstract', '\\bbridge program', 'doctoral consortium', 'undergraduate consortium',
+  'new faculty', 'senior member', '\\bsummit\\b',
+]
+
+[venues.iclr2024]
+name = "ICLR 2024"
+conference_date = "2024-05-07"
+arxiv_query = '''co:"ICLR 2024" OR co:ICLR2024 OR co:"ICLR'24" OR co:"ICLR-24"'''
+include = ['''ICLR[\s,'’()*@-]*(?:20)?24\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'tiny ?paper', 'blog ?post',
+]
+
+[venues.cvpr2024]
+name = "CVPR 2024"
+conference_date = "2024-06-17"
+arxiv_query = '''co:"CVPR 2024" OR co:CVPR2024 OR co:"CVPR'24" OR co:"CVPR-24"'''
+include = ['''CVPR[\s,'’()*@-]*(?:20)?24\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'challenge', 'tech(?:nical)? report', 'competition',
+]
+
+[venues.icml2024]
+name = "ICML 2024"
+conference_date = "2024-07-21"
+arxiv_query = '''co:"ICML 2024" OR co:ICML2024 OR co:"ICML'24" OR co:"ICML-24"'''
+include = ['''ICML[\s,'’()*@-]*(?:20)?24\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+]
+
+[venues.acl2024]
+name = "ACL 2024"
+conference_date = "2024-08-11"
+arxiv_query = '''co:"ACL 2024" OR co:ACL2024 OR co:"ACL'24" OR co:"ACL-24"'''
+include = ['''(?<![A-Za-z])ACL[\s,'’()*@-]*(?:20)?24\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'findings', 'student research', 'system demonstration', 'shared task', 'industry track',
+]
+
+[venues.ijcai2024]
+name = "IJCAI 2024"
+conference_date = "2024-08-03"
+arxiv_query = '''co:"IJCAI 2024" OR co:IJCAI2024 OR co:"IJCAI'24" OR co:"IJCAI-24"'''
+include = ['''IJCAI[\s,'’()*@-]*(?:20)?24\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'doctoral consortium', 'survey track', 'early career',
+]
+
+[venues.eccv2024]
+name = "ECCV 2024"
+conference_date = "2024-09-29"
+arxiv_query = '''co:"ECCV 2024" OR co:ECCV2024 OR co:"ECCV'24" OR co:"ECCV-24"'''
+include = ['''ECCV[\s,'’()*@-]*(?:20)?24\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'challenge', 'tech(?:nical)? report', 'competition',
+]
+
+[venues.emnlp2024]
+name = "EMNLP 2024"
+conference_date = "2024-11-12"
+arxiv_query = '''co:"EMNLP 2024" OR co:EMNLP2024 OR co:"EMNLP'24" OR co:"EMNLP-24"'''
+include = ['''EMNLP[\s,'’()*@-]*(?:20)?24\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'findings', 'student research', 'system demonstration', 'shared task', 'industry track',
+]
+
+[venues.acmmm2024]
+name = "ACM MM 2024"
+conference_date = "2024-10-28"
+arxiv_query = '''co:"ACM MM 2024" OR co:"ACM Multimedia 2024" OR co:"ACM MM'24" OR co:"MM '24" OR co:"MM 2024" OR co:ACMMM2024 OR co:"ACM MM24"'''
+include = ['''(?:ACM\s*(?:MM|Multimedia)|(?<![A-Za-z])MM)[\s,'’()*@-]*(?:20)?24\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'grand challenge', 'challenge', 'brave new ideas', 'open source competition', 'doctoral',
+]
+
+[venues.neurips2024]
+name = "NeurIPS 2024"
+conference_date = "2024-12-10"
+arxiv_query = '''co:"NeurIPS 2024" OR co:NeurIPS2024 OR co:"NeurIPS'24" OR co:"NeurIPS-24"'''
+include = ['''NeurIPS[\s,'’()*@-]*(?:20)?24\b''']
+exclude = [
+  'under review', 'submitted to', 'submission to', 'in submission',
+  'workshop', 'reject', 'withdr[ae]w', 'tutorial', '\\bdemo\\b',
+  'competition', 'creative ai', 'high school',
 ]
 
 # ---------- 2026 ----------

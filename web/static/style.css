@@ -182,46 +182,83 @@ a.cell:hover { outline: 2px solid var(--ink); outline-offset: 1px; }
 .venue .age { margin: 8px 0 0; color: var(--muted); font-size: var(--t-small); }
 .venue .open { margin: 12px 0 0; font-size: 15px; }
 
-/* ---------- 列表 ---------- */
+/* ---------- 列表 ----------
+   一篇论文一行：方块（颜色同方格图）、标题和仓库、等了多少天。
+   没兑现的可以点开看证据；已开源的只有一行。按状态分组。 */
 
 .list-head {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
-  margin: 48px 0 0; padding: 0 0 12px; border-bottom: 2px solid var(--ink);
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin: 48px 0 0; padding: 12px 0; background: var(--paper); border-bottom: 2px solid var(--ink);
 }
 .list-head p { margin: 0; color: var(--muted); font-size: 15px; }
+.tools { display: flex; align-items: center; gap: 14px; }
+.expand {
+  padding: 0; border: 0; background: none; cursor: pointer;
+  font: 400 14px var(--sans); color: var(--link);
+}
+.expand:hover { text-decoration: underline; }
 .search {
   width: 260px; padding: 6px 10px; border: 1px solid var(--cell); border-radius: 2px;
   background: var(--paper); font: 400 15px var(--sans); color: var(--ink);
 }
 
+.group-head {
+  display: flex; align-items: center; gap: 9px;
+  margin: 36px 0 0; padding: 0 0 10px; border-bottom: 1px solid var(--ink);
+  font: 600 15px/1.3 var(--sans);
+}
+.group-head b { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+.group[hidden] { display: none; }
+
 .entries { margin: 0; padding: 0; list-style: none; }
-.entry { padding: 30px 0 32px; border-bottom: 1px solid var(--rule); }
-/* !important：.entry.compact 的 display: flex 写在后面，会盖过 hidden */
-.entry[hidden] { display: none !important; }
+.entry { border-bottom: 1px solid var(--rule); scroll-margin-top: 64px; }  /* 别被吸顶的工具栏挡住 */
+.entry[hidden] { display: none; }
 
-.entry h3 { margin: 0; max-width: 760px; font: 600 var(--t-title)/1.3 var(--serif); }
-.entry h3 a { color: var(--ink); text-decoration: none; }
-.entry h3 a:hover { text-decoration: underline; }
+.entry summary, .entry .row {
+  display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 0 14px; align-items: baseline;
+  padding: 12px 4px 12px 0;
+}
+.entry summary { cursor: pointer; list-style: none; }
+.entry summary::-webkit-details-marker { display: none; }
+.entry summary:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.entry .cell { align-self: start; margin-top: 7px; }
+.what .title { display: block; font: 400 17px/1.4 var(--serif); color: var(--ink); text-decoration: none; }
+.what .repo {
+  display: block; margin-top: 2px; font: 400 13px/1.4 var(--mono); color: var(--muted);
+  text-decoration: none; overflow-wrap: anywhere;
+}
+.what .repo.none { font-family: var(--sans); }
+.entry summary:hover .title, .what a.title:hover { text-decoration: underline; text-decoration-color: var(--cell); }
+.what a.repo:hover { color: var(--link); }
 
-.status { margin: 6px 0 0; font-size: 15px; color: var(--muted); }
-.status strong { font-weight: 600; }
-.status .empty { color: var(--red); }
-.status .partial { color: #b4472d; }
-.status .gone { color: var(--ink); }
-.status .released { color: var(--ink); }
-.checklist { margin: 6px 0 0; font-size: var(--t-small); color: var(--muted); }
-.entry.compact .checklist { flex-basis: 100%; }
+/* 右边的展开箭头 */
+.chev {
+  align-self: start; width: 7px; height: 7px; margin: 8px 4px 0 6px;
+  border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted);
+  transform: rotate(45deg); transition: transform 0.15s;
+}
+details[open] > summary .chev { margin-top: 11px; transform: rotate(225deg); }
+summary:hover .chev { border-color: var(--ink); }
+details[open] > summary .title { font-weight: 600; }
+
+/* 展开后的内容，和标题对齐 */
+.entry .body { padding: 2px 0 26px 24px; }
+.body .paper { margin: 0; font-size: 14px; color: var(--muted); }
+.body .paper a { color: var(--link); }
+.checklist { margin: 14px 0 0; font-size: var(--t-small); color: var(--muted); }
+.entry.plain .checklist { margin: -4px 0 0; padding: 0 0 14px 24px; }
 .checklist p { margin: 0; }
 .checklist ul { margin: 4px 0 0; padding-left: 18px; color: var(--ink); }
 
 /* 论文说的 vs 仓库里有的 */
-.evidence { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 18px 0 0; }
+.evidence { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 16px 0 0; }
 .evidence figure { margin: 0; }
 .evidence figcaption { margin: 0 0 8px; font-size: var(--t-small); color: var(--muted); }
 .evidence figcaption a { color: inherit; }
 
 .said blockquote {
-  margin: 0; font: 400 19px/1.5 var(--serif);
+  margin: 0; font: 400 18px/1.5 var(--serif);
 }
 mark { background: linear-gradient(transparent 12%, var(--marker) 12%, var(--marker) 88%, transparent 88%);
        color: inherit; padding: 0 1px; }
@@ -234,12 +271,6 @@ mark { background: linear-gradient(transparent 12%, var(--marker) 12%, var(--mar
 .has .absent { margin: 0; font-family: var(--sans); font-size: 15px; }
 .has .readme { margin: 12px 0 0; font: italic 400 16px/1.5 var(--serif); }
 .has .readme span { font: 400 var(--t-small) var(--sans); color: var(--muted); font-style: normal; }
-
-/* 已开源的条目只占一行 */
-.entry.compact { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 16px;
-                 padding: 14px 0; }
-.entry.compact h3 { font-size: 17px; font-weight: 400; }
-.entry.compact .status { margin: 0; white-space: nowrap; }
 
 .nothing { padding: 40px 0; color: var(--muted); }
 
@@ -277,10 +308,11 @@ mark { background: linear-gradient(transparent 12%, var(--marker) 12%, var(--mar
   .trend thead small { white-space: normal; }
   .crumbs { margin-bottom: -16px; }
   .evidence { grid-template-columns: 1fr; gap: 16px; }
-  .list-head { flex-direction: column; }
-  .search { width: 100%; }
-  .entry.compact { flex-direction: column; gap: 2px; }
-  .entry.compact .status { white-space: normal; }
+  .list-head { flex-wrap: wrap; gap: 8px 16px; }
+  .tools { flex: 1 1 100%; }
+  .search { flex: 1; width: auto; min-width: 0; }
+  .entry .body { padding-left: 0; }
+  .entry.plain .checklist { padding-left: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -23,6 +23,51 @@ _AVAILABILITY = re.compile(
 )
 
 
+_TEX_GREEK = {
+    "alpha": "α", "beta": "β", "gamma": "γ", "delta": "δ", "epsilon": "ε", "varepsilon": "ε",
+    "zeta": "ζ", "eta": "η", "theta": "θ", "kappa": "κ", "lambda": "λ", "mu": "μ", "nu": "ν",
+    "xi": "ξ", "pi": "π", "rho": "ρ", "sigma": "σ", "tau": "τ", "phi": "φ", "varphi": "φ",
+    "chi": "χ", "psi": "ψ", "omega": "ω", "Gamma": "Γ", "Delta": "Δ", "Theta": "Θ",
+    "Lambda": "Λ", "Pi": "Π", "Sigma": "Σ", "Phi": "Φ", "Psi": "Ψ", "Omega": "Ω", "ell": "ℓ",
+    "infty": "∞", "times": "×", "cdot": "·", "pm": "±", "to": "→", "rightarrow": "→",
+    "leftarrow": "←", "leftrightarrow": "↔", "sim": "∼", "approx": "≈", "le": "≤", "leq": "≤",
+    "ge": "≥", "geq": "≥", "&": "&", "%": "%", "_": "_",
+}  # fmt: skip
+_TEX_STYLE = re.compile(
+    r"\\(?:mathbf|mathcal|mathrm|mathbb|mathsf|mathit|boldsymbol|bm|text\w*|emph|operatorname)"
+    r"\s*\{([^{}]*)\}"
+)
+_SUPERSCRIPT = str.maketrans("0123456789+-n", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻ⁿ")
+_SUBSCRIPT = str.maketrans("0123456789+-", "₀₁₂₃₄₅₆₇₈₉₊₋")
+
+
+def _tex_script(text: str, table: dict[int, str], mark: str) -> str:
+    """能用上标/下标字符表示的就换掉，否则保留原样。"""
+    return text.translate(table) if all(ord(c) in table for c in text) else mark + text
+
+
+def tidy_title(title: str) -> str:
+    """把标题里的 LaTeX 变成能读的文字：A$^3$ → A³，$\\beta$-DPO → β-DPO。"""
+
+    def math(m: re.Match[str]) -> str:
+        t = _TEX_STYLE.sub(r"\1", m.group(1))
+        t = re.sub(
+            r"\^\{([^{}]*)\}|\^(\S)",
+            lambda x: _tex_script(x.group(1) or x.group(2), _SUPERSCRIPT, "^"),
+            t,
+        )
+        t = re.sub(
+            r"_\{([^{}]*)\}|_(\S)",
+            lambda x: _tex_script(x.group(1) or x.group(2), _SUBSCRIPT, "_"),
+            t,
+        )
+        t = re.sub(r"\\([A-Za-z]+|[&%_])", lambda x: _TEX_GREEK.get(x.group(1), x.group(1)), t)
+        return " ".join(t.replace("{", "").replace("}", "").split())
+
+    title = _TEX_STYLE.sub(r"\1", title)
+    return re.sub(r"\$([^$]+)\$", math, title).replace("\\", "")
+
+
 def entry_status(row: dict[str, Any]) -> str:
     """把 build 的状态归成网页上的类别：匿名链接和没有仓库链接合并为 no_repo。"""
     return "no_repo" if row["status"] in ("anonymous", "no_link") else row["status"]
@@ -62,7 +107,7 @@ def waffle(rows: list[dict[str, Any]], t: dict[str, Any], href_prefix: str = "")
     parts = []
     for r in cells:
         status = entry_status(r)
-        label = escape(f"{r['title']} ({t['status'][status]})")
+        label = escape(f"{tidy_title(r['title'])} ({t['status'][status]})")
         parts.append(
             f'<a class="cell {status}" href="{href_prefix}#{entry_id(r["paper_id"])}" '
             f'title="{label}" aria-label="{label}" tabindex="-1"></a>'
@@ -169,31 +214,64 @@ def _checklist(row: dict[str, Any], t: dict[str, Any]) -> str:
     return f'<div class="checklist"><p>{escape(note)}</p><ul>{items}</ul></div>'
 
 
+def _sub(row: dict[str, Any], status: str, t: dict[str, Any]) -> str:
+    """标题下面那一行：仓库名；没有仓库时说明情况。"""
+    if row.get("repo"):
+        return f'<span class="repo">{escape(row["repo"])}</span>'
+    if row["status"] == "anonymous":
+        return f'<span class="repo">{escape(row["evidence"])}</span>'
+    return f'<span class="repo none">{escape(t["no_link_short"])}</span>'
+
+
 def entry(row: dict[str, Any], t: dict[str, Any], promise: re.Pattern[str]) -> str:
+    """一篇论文占一行；没兑现的可以点开，看论文原话和仓库里实际有什么。
+
+    用 <details>，没有脚本也能展开。已开源的论文只有一行，标题和仓库都是链接。
+    """
     status = entry_status(row)
-    search = escape(f"{row['title']} {row.get('repo', '')}".lower())
+    title = tidy_title(row["title"])
+    search = escape(f"{title} {row['title']} {row.get('repo', '')}".lower())
     extra = ' data-extra="checklist"' if row.get("checklist") else ""
-    head = (
-        f'<li class="entry{" compact" if status == "released" else ""}" '
-        f'id="{entry_id(row["paper_id"])}" data-status="{status}"{extra} data-search="{search}">'
-        f'<h3><a href="{escape(row["url"])}">{escape(row["title"])}</a></h3>'
-    )
-    label = escape(t["status"][status])
+    cell = f'<span class="cell {status}" aria-hidden="true"></span>'
+    attrs = f'id="{entry_id(row["paper_id"])}" data-status="{status}"{extra} data-search="{search}"'
     if status == "released":
         repo = escape(row["repo"])
         return (
-            f'{head}<p class="status">{label}: '
-            f'<a href="https://github.com/{repo}">{repo}</a></p>{_checklist(row, t)}</li>'
+            f'<li class="entry plain" {attrs}><div class="row">{cell}<span class="what">'
+            f'<a class="title" href="{escape(row["url"])}">{escape(title)}</a>'
+            f'<a class="repo" href="https://github.com/{repo}">{repo}</a></span></div>'
+            f"{_checklist(row, t)}</li>"
         )
     days = escape(t["days_after"].format(d=row["promised_days"]))
     sentence = row.get("paper_sentence") or (
         row.get("evidence") if row["status"] == "no_link" else ""
     )
     return (
-        f'{head}<p class="status"><strong class="{status}">{label}</strong>, {days}</p>'
+        f'<li class="entry" {attrs}><details><summary>{cell}<span class="what">'
+        f'<span class="title">{escape(title)}</span>{_sub(row, status, t)}</span>'
+        f'<span class="chev" aria-hidden="true"></span></summary>'
+        f'<div class="body"><p class="paper"><a href="{escape(row["url"])}">'
+        f"{escape(t['paper_link'])}</a> · {days}</p>"
         f'<div class="evidence">{_said(sentence, t)}{_has(row, status, t, promise)}</div>'
-        f"{_checklist(row, t)}</li>"
+        f"{_checklist(row, t)}</div></details></li>"
     )
+
+
+def entry_groups(rows: list[dict[str, Any]], t: dict[str, Any], promise: re.Pattern[str]) -> str:
+    """按状态分组，每组一个小标题（颜色和方格图一致）。"""
+    out = []
+    for status in LIST_ORDER:
+        group = [r for r in rows if entry_status(r) == status]
+        if not group:
+            continue
+        items = "\n".join(entry(r, t, promise) for r in group)
+        out.append(
+            f'<section class="group" data-group="{status}"><h2 class="group-head">'
+            f'<span class="cell {status}" aria-hidden="true"></span>'
+            f"{escape(t['status'][status])} <b>{len(group)}</b></h2>"
+            f'<ul class="entries">\n{items}\n</ul></section>'
+        )
+    return "".join(out)
 
 
 def all_rows(site: dict[str, Any]) -> list[dict[str, Any]]:

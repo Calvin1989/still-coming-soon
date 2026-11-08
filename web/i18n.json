@@ -75,7 +75,11 @@
     "other_years": "Other years:",
     "fallback_note": "The repository linked above, github.com/{repo}, does not exist; this is another repository the paper names.",
     "checklist_legend": "Released, but the author's checklist is not finished",
-    "checklist_note": "The author's checklist in the README: {done} of {total} ticked. Not ticked yet:"
+    "checklist_note": "The author's checklist in the README: {done} of {total} ticked. Not ticked yet:",
+    "paper_link": "Paper on arXiv",
+    "no_link_short": "No repository link in the paper",
+    "expand_all": "Expand all",
+    "collapse_all": "Collapse all"
   },
   "zh": {
     "lang_name": "中文",
@@ -139,6 +143,10 @@
     "other_years": "其他年份：",
     "fallback_note": "上面那句话里的仓库 github.com/{repo} 不存在，这是论文里写的另一个仓库。",
     "checklist_legend": "已开源，但作者清单没勾完",
-    "checklist_note": "作者在 README 里列的清单：{total} 项勾了 {done} 项。还没勾："
+    "checklist_note": "作者在 README 里列的清单：{total} 项勾了 {done} 项。还没勾：",
+    "paper_link": "arXiv 论文",
+    "no_link_short": "论文里没有仓库链接",
+    "expand_all": "全部展开",
+    "collapse_all": "全部收起"
   }
 }

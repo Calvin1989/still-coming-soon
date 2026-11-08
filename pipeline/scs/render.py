@@ -28,7 +28,7 @@ from scs.render_index import (
     year_page,
     years_of,
 )
-from scs.render_parts import all_rows, counts_of, entry, legend, waffle
+from scs.render_parts import all_rows, counts_of, entry_groups, legend, waffle
 
 WEB_DIR = Path(__file__).resolve().parents[2] / "web"
 LANGS = ("en", "zh")
@@ -53,16 +53,19 @@ def venue_content(
     repo_rows = with_repo(rows)
     n, total = not_delivered(repo_rows), len(repo_rows)
     hero = t["hero_venue"].format(n=n, total=f"{total:,}", venue=site["name"])
-    items = "\n".join(entry(r, t, promise) for r in rows)
+    toggle = (
+        f'<button type="button" class="expand" data-expand="{escape(t["expand_all"])}" '
+        f'data-collapse="{escape(t["collapse_all"])}">{escape(t["expand_all"])}</button>'
+    )
     return (
         f"{other_years(site, list(sites) or [site], t)}"
         f'<section class="hero"><h1>{escape(hero)}</h1><p>{escape(t["lede_venue"])}</p></section>'
         f"{waffle(repo_rows, t)}{legend(counts_of(rows), t, site.get('checklist_open', 0))}"
         f'<div class="list-head"><p class="count" data-template="{escape(t["count"])}">'
         f"{escape(t['count'].format(n=len(rows)))}</p>"
-        f'<input class="search" type="search" placeholder="{escape(t["search"])}" '
-        f'aria-label="{escape(t["search"])}"></div>'
-        f'<ul class="entries">\n{items}\n</ul>'
+        f'<div class="tools">{toggle}<input class="search" type="search" '
+        f'placeholder="{escape(t["search"])}" aria-label="{escape(t["search"])}"></div></div>'
+        f"{entry_groups(rows, t, promise)}"
         f'<p class="nothing" hidden>{escape(t["nothing"])}</p>'
     )
 

@@ -144,3 +144,36 @@ def test_helpers():
     assert entry_id("arxiv:2501.00001") == "p-2501.00001"
     assert marked("Code: github.com/a/b") == "<mark>Code:</mark> github.com/a/b"
     assert marked("nothing here <b>") == "nothing here &lt;b&gt;"
+
+
+def test_venue_list_is_grouped_and_collapsible(tmp_path):
+    from scs.render_parts import tidy_title
+
+    rows_ = [
+        {**ROW, "paper_id": "arxiv:1", "title": "A$^3$: Empty one", "status": "empty"},
+        {**ROW, "paper_id": "arxiv:2", "title": "Gone one", "status": "gone"},
+        {**ROW, "paper_id": "arxiv:3", "title": "Released one", "status": "released"},
+    ]
+    render_site([site(rows_, key="v1")], tmp_path)
+    html = (tmp_path / "v1.html").read_text(encoding="utf-8")
+    # 按状态分组，顺序和图例一致；每组有数量
+    assert (
+        html.index('data-group="empty"')
+        < html.index('data-group="gone"')
+        < html.index('data-group="released"')
+    )
+    assert "Empty repository <b>1</b>" in html
+
+    # 没兑现的可以展开看证据；已开源的只有一行，没有展开内容
+    def item(pid):
+        start = html.rindex("<li", 0, html.index(f'id="{pid}"'))
+        return html[start : html.index("</li>", start)]
+
+    assert "<details><summary>" in item("p-1") and 'class="evidence"' in item("p-1")
+    assert "<details>" not in item("p-3") and 'class="entry plain"' in item("p-3")
+    # 标题里的 LaTeX 整理成能读的文字
+    assert "A³: Empty one" in html
+    assert 'class="expand"' in html and 'class="list-head"' in html
+    assert tidy_title(r"$\beta$-DPO with $O(n \log n)$") == "β-DPO with O(n log n)"
+    assert tidy_title(r"$C^2M^3$ and (FL)$^2$") == "C²M³ and (FL)²"
+    assert tidy_title(r"\textsc{Gaze} Net") == "Gaze Net"

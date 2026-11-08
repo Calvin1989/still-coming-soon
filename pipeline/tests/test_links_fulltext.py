@@ -212,6 +212,10 @@ def test_project_page_link_is_not_a_code_promise():
         ),
         ("Source code: https://github.com/AmayaGS/BioX-CPath00footnotetext", "AmayaGS/BioX-CPath"),
         ("Our code: https://github.com/aio-libs/aiohttp is a library", "aio-libs/aiohttp"),
+        (
+            "peter.yu@x.comhttps://github.com/jacky-hjqq/BioDetmagentagithub.com/jacky-hjqq/BioDet",
+            "jacky-hjqq/BioDet",
+        ),
     ],
 )
 def test_repo_name_artifacts(text, expected):
@@ -233,3 +237,25 @@ def test_concatenated_next_word_uses_shorter_name_seen_elsewhere():
 def test_long_quote_keeps_the_link():
     quote = quote_with_link("Our code is available at " + "x" * 400, "a/b")
     assert quote.startswith("…") and quote.endswith("github.com/a/b") and len(quote) == 320
+
+
+def test_anonymous_github_account_is_not_a_repo():
+    text = "Code is available at https://github.com/anonymous/speculative_prefill."
+    assert extract_repos(text) == []
+    assert (
+        anonymous_link(full(("abstract", [], text))) == "github.com/anonymous/speculative_prefill"
+    )
+
+
+def test_broken_abstract_url_completed_from_body():
+    paper = Paper(
+        "arxiv:1",
+        "v",
+        "t",
+        "u",
+        "2025-01-01",
+        "ICML 2025; Code available at: https://github.com/BreuerLabs/E- LDA",
+    )
+    body = full(("body", ["https://github.com/BreuerLabs/E-LDA"], "It can be found at: here"))
+    link = resolve(paper, body)
+    assert link.repo == "BreuerLabs/E-LDA" and link.sentence.endswith("github.com/BreuerLabs/E-LDA")

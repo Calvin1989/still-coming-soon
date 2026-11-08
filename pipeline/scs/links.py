@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable
+from dataclasses import replace
 
 from scs.models import Fragment, FullText, Paper, RepoLink
 
@@ -23,6 +24,8 @@ _REPO = re.compile(
     re.IGNORECASE,
 )
 _RESERVED_OWNERS = {"orgs", "features", "topics", "about", "settings", "marketplace", "sponsors"}
+# 作者用来占位的匿名账号（github.com/anonymous/…），不是真仓库
+_ANON_OWNER = re.compile(r"^anon(?:ymous|ymized)?(?:[-_]?\w*)?$", re.IGNORECASE)
 
 # "可获取/已发布"一类的词，出现在句子里才说明这句话是在给出代码的位置
 _AVAILABLE = (
@@ -101,12 +104,17 @@ _URL_PREFIX = re.compile(r"\s*(?:https?://)?(?:www\.)?$", re.IGNORECASE)
 
 
 _FOOTNOTE_TAIL = re.compile(r"\d*footnotetext$", re.IGNORECASE)
+# LaTeX 颜色命令的残留，和后面的网址粘在一起："BioDetmagentagithub.com/…"
+_COLOR_TAIL = re.compile(r"(?:magenta|cyan|blue|teal|purple|violet|orange)$", re.IGNORECASE)
 _SCHEME_TAIL = re.compile(r"https?$", re.IGNORECASE)
 
 
 def _clean_name(name: str, following: str = "") -> str:
     """去掉粘在仓库名后面的东西。following 是原文里紧跟在仓库名后面的几个字符。"""
     name = _FOOTNOTE_TAIL.sub("", name)  # LaTeX 残留："BioX-CPath00footnotetext"
+    glued = name.lower().find("github.com")
+    if glued > 0:  # 后面粘了另一个网址
+        name = _COLOR_TAIL.sub("", name[:glued])
     if following.startswith("://"):  # 两个网址连写："CoLeG-Mathhttps://github.com/…"
         name = _SCHEME_TAIL.sub("", name)
     name = name.rstrip(".,;:_-")
@@ -137,7 +145,7 @@ def find_repos(text: str) -> list[tuple[str, int]]:
     text = _normalize(text)
     for m in _REPO.finditer(text):
         owner, name = m.group(1), _clean_name(m.group(2), text[m.end() : m.end() + 3])
-        if name and owner.lower() not in _RESERVED_OWNERS:
+        if name and owner.lower() not in _RESERVED_OWNERS and not _ANON_OWNER.match(owner):
             found.append((f"{owner}/{name}", m.start()))
     return found
 
@@ -303,10 +311,19 @@ def resolve(paper: Paper, full: FullText | None) -> RepoLink | None:
         chosen = choose_from_fulltext(full)
         if chosen is not None:
             return chosen
-    return link_for(paper)
+    link = link_for(paper)
+    if link is not None and full is not None and full.available:
+        # 摘要里的网址可能写坏了（"BreuerLabs/E- LDA"），正文里有完整的就用正文的
+        in_body = [r for frag in full.fragments for h in frag.hrefs for r, _ in find_repos(h)]
+        repo = _complete(link.repo, in_body)
+        if repo != link.repo:
+            link = replace(link, repo=repo, sentence=link.sentence.replace(link.repo, repo))
+    return link
 
 
-_ANON = re.compile(r"anonymous\.4open\.science/r/[\w.-]+", re.IGNORECASE)
+_ANON = re.compile(
+    r"anonymous\.4open\.science/r/[\w.-]+|github\.com/anonym\w*/[\w.-]+", re.IGNORECASE
+)
 
 
 def anonymous_link(full: FullText | None) -> str:
@@ -319,7 +336,7 @@ def anonymous_link(full: FullText | None) -> str:
         for source in (frag.text, *frag.hrefs):
             m = _ANON.search(source)
             if m:
-                return m.group(0)
+                return m.group(0).rstrip(".,;:)")
     return ""
 
 

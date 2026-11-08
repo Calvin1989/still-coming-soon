@@ -8,11 +8,18 @@ It finds accepted conference papers on arXiv, works out which GitHub repository 
 
 | Conference | Papers with their own repository | Not delivered |
 |---|---|---|
+| ICML 2025 | 784 | 28 (3.6%) |
 | ICLR 2025 | 1,022 | 39 (3.8%) |
+| NeurIPS 2025 | 1,410 | 57 (4.0%) |
 | CVPR 2025 | 655 | 49 (7.5%) |
-| AAAI 2025 | 482 | 51 (10.6%) |
+| ACL 2025 | 613 | 48 (7.8%) |
+| ICCV 2025 | 597 | 49 (8.2%) |
+| ACM MM 2025 | 153 | 16 (10.5%) |
+| EMNLP 2025 | 610 | 64 (10.5%) |
+| AAAI 2025 | 481 | 51 (10.6%) |
+| IJCAI 2025 | 143 | 17 (11.9%) |
 
-Checked on 2026-11-08. More in [Results](#results).
+Machine learning conferences (ICML, ICLR, NeurIPS) are around 4%. Vision and ACL are around 8%. EMNLP, ACM MM, AAAI and IJCAI are above 10%. Checked on 2026-11-08; more in [Results](#results).
 
 ## How it works
 
@@ -70,13 +77,19 @@ Measured on 2026-11-08, from the full text of every paper (arXiv HTML version).
 
 | Conference | Accepted papers found on arXiv | With their own repository | Empty | A few lines | Gone | Not delivered |
 |---|---|---|---|---|---|---|
+| ICML 2025 | 1,319 | 784 | 20 | 1 | 7 | 3.6% |
 | ICLR 2025 | 1,626 | 1,022 | 23 | 5 | 11 | 3.8% |
+| NeurIPS 2025 | 2,345 | 1,410 | 39 | 1 | 17 | 4.0% |
 | CVPR 2025 | 1,393 | 655 | 37 | 6 | 6 | 7.5% |
-| AAAI 2025 | 1,205 | 482 | 36 | 6 | 9 | 10.6% |
+| ACL 2025 | 946 | 613 | 38 | 3 | 7 | 7.8% |
+| ICCV 2025 | 1,198 | 597 | 39 | 1 | 9 | 8.2% |
+| ACM MM 2025 | 292 | 153 | 13 | 0 | 3 | 10.5% |
+| EMNLP 2025 | 926 | 610 | 50 | 4 | 10 | 10.5% |
+| AAAI 2025 | 1,205 | 481 | 36 | 6 | 9 | 10.6% |
+| IJCAI 2025 | 297 | 143 | 12 | 1 | 4 | 11.9% |
 
-- The differences between ICLR and the other two conferences are statistically significant.
-- Not counted as not delivered: repositories with data only, links described only as a project page, and papers whose arXiv version gives no repository (it may still be the double-blind review version).
-- Every “repository gone” entry was re-checked by hand on the first full run; several turned out to be extraction errors (two URLs written together, LaTeX leftovers in the name) and were fixed.
+- Not counted as not delivered: repositories with data only, links described only as a project page, and papers whose arXiv version gives no repository or only an anonymous review link (it may still be the double-blind review version).
+- Every “repository gone” entry was checked by hand after the first full run of each conference. Extraction errors found this way (URLs written together, LaTeX leftovers in names, placeholder `github.com/anonymous/…` links) were fixed and are covered by tests.
 
 ## License
 

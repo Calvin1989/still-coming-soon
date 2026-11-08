@@ -24,6 +24,10 @@
 <h2>What counts as not delivered</h2>
 <p>Only three statuses count: empty repository, a few lines of code, and repository gone. “Data only” is not counted, because benchmark papers may only need to share data. “No repository in the arXiv version” is not counted either. The latest arXiv version of a paper is sometimes still the version written during double-blind review, and the code may have been published on a project page or elsewhere without updating arXiv.</p>
 
+<h2>Author checklists (extra information)</h2>
+<p>Many READMEs carry a checklist such as “- [x] Release inference code / - [ ] Release training code”. For papers whose code is released, the site also shows which items on the author's own checklist are not ticked yet. This is extra information. It is never counted as not delivered.</p>
+<p>To avoid flagging anyone by mistake, only clear release promises count: items starting with Release, Open-source, Upload or Publish, or short items such as “Training code” or “Checkpoints”, about code, weights or data. Plans to extend the work (“more datasets”, “a new version”, “support for …”), struck-through items and items about the paper itself are ignored. An unticked training or inference item is treated as done when the repository already has matching files, such as <code>train.py</code>, since the author may simply have forgotten to tick it. The site quotes the checklist as it is and draws no further conclusion.</p>
+
 <h2>What we do not do</h2>
 <ul>
   <li>We do not show author names, and we do not judge anyone. A repository can be empty for good reasons; we only report what is there.</li>

@@ -6,6 +6,7 @@ from collections import Counter
 from datetime import date
 from typing import Any
 
+from scs.checklist import summarize
 from scs.classify import classify
 from scs.config import ClassifyConfig, VenueConfig
 from scs.links import anonymous_link, fallback_repos, promise_without_link
@@ -36,7 +37,7 @@ def _repo_row(
     today: date,
 ) -> dict[str, Any]:
     verdict = classify(snap, cfg)
-    return {
+    row = {
         "paper_id": paper.paper_id,
         "title": paper.title,
         "url": paper.url,
@@ -54,6 +55,17 @@ def _repo_row(
         "listing": [list(x) for x in snap.listing],
         "checked_at": snap.checked_at[:10],
     }
+    # 补充信息：已开源的仓库里，作者自己列的发布清单还没勾完。不影响 status。
+    if verdict.status in (Status.RELEASED, Status.DATA_ONLY):
+        checklist = summarize(snap.tasks, snap.present_kinds)
+        if checklist and checklist.open:
+            row["checklist"] = {
+                "done": checklist.done,
+                "total": checklist.total,
+                "open": list(checklist.open),
+                "open_kinds": list(checklist.open_kinds),
+            }
+    return row
 
 
 def _no_repo_row(paper: Paper, kind: str, evidence: str, venue: VenueConfig, today: date):
@@ -124,6 +136,8 @@ def build_venue(
         "counts": status_counts(rows),
         "counts_future": status_counts([r for r in rows if r["future"]]),
         "no_repo_counts": dict(Counter(r["kind"] for r in no_repo)),
+        # 补充信息，不计入 counts：已开源但作者清单没勾完的仓库数
+        "checklist_open": sum(1 for r in rows if "checklist" in r),
         "rows": rows,
         "no_repo": no_repo,
     }

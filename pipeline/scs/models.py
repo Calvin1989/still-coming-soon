@@ -68,6 +68,10 @@ class RepoSnapshot:
     # 文件列表 [(路径, 大小)]，只在文件不多时保存，网站上用来展示"仓库里到底有什么"。
     # 大小为 -1 表示文件太大、没有下载内容。
     listing: tuple[tuple[str, int], ...] = ()
+    # README 里的 markdown 勾选项 [(是否已勾, 文字)]，见 scs.checklist
+    tasks: tuple[tuple[bool, str], ...] = ()
+    # 已经放了哪些类别（代码文件、README 里的下载链接），只在有勾选项时记录，见 scs.checklist
+    present_kinds: tuple[str, ...] = ()
 
     @property
     def gone(self) -> bool:

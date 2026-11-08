@@ -13,6 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import PurePosixPath
 
+from scs.checklist import extract_tasks, present_kinds
 from scs.config import ProbeConfig
 from scs.models import RepoSnapshot
 
@@ -61,7 +62,8 @@ def _inspect(repo: str, path: str, now: str, cfg: ProbeConfig) -> RepoSnapshot:
         _git(["cat-file", "--batch-check", "--batch-all-objects"], cwd=path).stdout
     )
     files = parse_tree(tree.stdout)
-    readme = _read_readme(files, path, cfg.readme_chars)
+    readme = _read_readme(files, path)
+    tasks = extract_tasks(readme)
     listing = file_listing(files, sizes) if len(files) <= cfg.max_listing_files else ()
     last_commit = _git(["log", "-1", "--format=%cI"], cwd=path).stdout.strip()
     return RepoSnapshot(
@@ -71,17 +73,20 @@ def _inspect(repo: str, path: str, now: str, cfg: ProbeConfig) -> RepoSnapshot:
         ext_bytes=ext_bytes(files, sizes, cfg.blob_limit_bytes),
         file_count=len(files),
         last_commit=last_commit,
-        readme=readme,
+        readme=readme[: cfg.readme_chars],
         listing=listing,
+        tasks=tasks,
+        present_kinds=present_kinds(files, readme) if tasks else (),
     )
 
 
-def _read_readme(files: dict[str, str], path: str, limit: int) -> str:
+def _read_readme(files: dict[str, str], path: str) -> str:
+    """完整的 README（发布清单常在后半部分）；快照里只存开头。"""
     oid = readme_oid(files)
     if not oid:
         return ""
     out = _git(["cat-file", "-p", oid], cwd=path)
-    return out.stdout[:limit] if out.returncode == 0 else ""
+    return out.stdout if out.returncode == 0 else ""
 
 
 def _git(args: list[str], cwd: str | None, timeout: int = 60) -> subprocess.CompletedProcess[str]:

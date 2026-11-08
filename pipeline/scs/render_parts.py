@@ -70,7 +70,8 @@ def waffle(rows: list[dict[str, Any]], t: dict[str, Any], href_prefix: str = "")
     return f'<div class="waffle">{"".join(parts)}</div>'
 
 
-def legend(counts: dict[str, int], t: dict[str, Any]) -> str:
+def legend(counts: dict[str, int], t: dict[str, Any], checklist: int = 0) -> str:
+    """checklist：已开源但作者清单没勾完的论文数。补充信息，单独一个按钮，默认不按下。"""
     items = []
     for status in (*UNDELIVERED, "data_only", "no_repo", "released"):
         n = counts.get(status, 0)
@@ -81,6 +82,12 @@ def legend(counts: dict[str, int], t: dict[str, Any]) -> str:
             f'<li><button type="button" data-statuses="{status}" aria-pressed="{pressed}">'
             f'<span class="cell {status}"></span>{escape(t["status"][status])} <b>{n}</b>'
             f"</button></li>"
+        )
+    if checklist:
+        items.append(
+            f'<li class="extra"><button type="button" data-statuses="checklist" '
+            f'aria-pressed="false"><span class="cell checklist"></span>'
+            f"{escape(t['checklist_legend'])} <b>{checklist}</b></button></li>"
         )
     return f'<ul class="legend">{"".join(items)}</ul>'
 
@@ -152,12 +159,23 @@ def _has(row: dict[str, Any], status: str, t: dict[str, Any], promise: re.Patter
     )
 
 
+def _checklist(row: dict[str, Any], t: dict[str, Any]) -> str:
+    """作者在 README 里列的发布清单还没勾完（补充信息）。只陈述清单原文，不下结论。"""
+    c = row.get("checklist")
+    if not c:
+        return ""
+    items = "".join(f"<li>{escape(text)}</li>" for text in c["open"])
+    note = t["checklist_note"].format(done=c["done"], total=c["total"])
+    return f'<div class="checklist"><p>{escape(note)}</p><ul>{items}</ul></div>'
+
+
 def entry(row: dict[str, Any], t: dict[str, Any], promise: re.Pattern[str]) -> str:
     status = entry_status(row)
     search = escape(f"{row['title']} {row.get('repo', '')}".lower())
+    extra = ' data-extra="checklist"' if row.get("checklist") else ""
     head = (
         f'<li class="entry{" compact" if status == "released" else ""}" '
-        f'id="{entry_id(row["paper_id"])}" data-status="{status}" data-search="{search}">'
+        f'id="{entry_id(row["paper_id"])}" data-status="{status}"{extra} data-search="{search}">'
         f'<h3><a href="{escape(row["url"])}">{escape(row["title"])}</a></h3>'
     )
     label = escape(t["status"][status])
@@ -165,7 +183,7 @@ def entry(row: dict[str, Any], t: dict[str, Any], promise: re.Pattern[str]) -> s
         repo = escape(row["repo"])
         return (
             f'{head}<p class="status">{label}: '
-            f'<a href="https://github.com/{repo}">{repo}</a></p></li>'
+            f'<a href="https://github.com/{repo}">{repo}</a></p>{_checklist(row, t)}</li>'
         )
     days = escape(t["days_after"].format(d=row["promised_days"]))
     sentence = row.get("paper_sentence") or (
@@ -173,7 +191,8 @@ def entry(row: dict[str, Any], t: dict[str, Any], promise: re.Pattern[str]) -> s
     )
     return (
         f'{head}<p class="status"><strong class="{status}">{label}</strong>, {days}</p>'
-        f'<div class="evidence">{_said(sentence, t)}{_has(row, status, t, promise)}</div></li>'
+        f'<div class="evidence">{_said(sentence, t)}{_has(row, status, t, promise)}</div>'
+        f"{_checklist(row, t)}</li>"
     )
 
 

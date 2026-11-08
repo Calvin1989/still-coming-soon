@@ -73,7 +73,9 @@
     "year_empty": "No results for this year yet.",
     "back_year": "All {year} conferences",
     "other_years": "Other years:",
-    "fallback_note": "The repository linked above, github.com/{repo}, does not exist; this is another repository the paper names."
+    "fallback_note": "The repository linked above, github.com/{repo}, does not exist; this is another repository the paper names.",
+    "checklist_legend": "Released, but the author's checklist is not finished",
+    "checklist_note": "The author's checklist in the README: {done} of {total} ticked. Not ticked yet:"
   },
   "zh": {
     "lang_name": "中文",
@@ -135,6 +137,8 @@
     "year_empty": "这一年还没有结果。",
     "back_year": "{year} 年的全部会议",
     "other_years": "其他年份：",
-    "fallback_note": "上面那句话里的仓库 github.com/{repo} 不存在，这是论文里写的另一个仓库。"
+    "fallback_note": "上面那句话里的仓库 github.com/{repo} 不存在，这是论文里写的另一个仓库。",
+    "checklist_legend": "已开源，但作者清单没勾完",
+    "checklist_note": "作者在 README 里列的清单：{total} 项勾了 {done} 项。还没勾："
   }
 }

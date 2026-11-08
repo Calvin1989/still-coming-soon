@@ -48,13 +48,20 @@ def load_links(venue: str, data_dir: Path = DATA_DIR) -> list[RepoLink]:
     ]
 
 
+# 快照里大多数仓库都为空的字段，为空时不写，省空间
+_OPTIONAL = ("tasks", "present_kinds")
+
+
 def save_snapshots(venue: str, snapshots: list[RepoSnapshot], data_dir: Path = DATA_DIR) -> None:
     """检查时间不写进每一行，单独存一个文件。
 
     这样仓库没变化时快照文件也不变，每天的提交里只出现真正有变化的仓库。
     """
     path = path_for("snapshots", venue, data_dir)
-    rows = ({k: v for k, v in asdict(s).items() if k != "checked_at"} for s in snapshots)
+    rows = (
+        {k: v for k, v in asdict(s).items() if k != "checked_at" and (v or k not in _OPTIONAL)}
+        for s in snapshots
+    )
     write_jsonl(path, rows)
     checked = max((s.checked_at for s in snapshots), default="")
     path.with_suffix(".checked").write_text(checked + "\n", encoding="utf-8")
@@ -70,6 +77,8 @@ def load_snapshots(venue: str, data_dir: Path = DATA_DIR) -> list[RepoSnapshot]:
                 "checked_at": checked,
                 **r,
                 "listing": tuple(tuple(x) for x in r.get("listing", ())),
+                "tasks": tuple(tuple(x) for x in r.get("tasks", ())),
+                "present_kinds": tuple(r.get("present_kinds", ())),
             }
         )
         for r in read_jsonl(path)

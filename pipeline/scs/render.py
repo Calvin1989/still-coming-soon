@@ -57,7 +57,7 @@ def venue_content(
     return (
         f"{other_years(site, list(sites) or [site], t)}"
         f'<section class="hero"><h1>{escape(hero)}</h1><p>{escape(t["lede_venue"])}</p></section>'
-        f"{waffle(repo_rows, t)}{legend(counts_of(rows), t)}"
+        f"{waffle(repo_rows, t)}{legend(counts_of(rows), t, site.get('checklist_open', 0))}"
         f'<div class="list-head"><p class="count" data-template="{escape(t["count"])}">'
         f"{escape(t['count'].format(n=len(rows)))}</p>"
         f'<input class="search" type="search" placeholder="{escape(t["search"])}" '

@@ -21,7 +21,9 @@
     const q = search.value.trim().toLowerCase();
     let n = 0;
     for (const e of entries) {
-      const visible = on.has(e.dataset.status) && (!q || e.dataset.search.includes(q));
+      // data-extra：补充类别（已开源但清单没勾完），按下对应按钮时也显示
+      const match = on.has(e.dataset.status) || (e.dataset.extra && on.has(e.dataset.extra));
+      const visible = match && (!q || e.dataset.search.includes(q));
       e.hidden = !visible;
       if (visible) n++;
     }

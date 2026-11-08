@@ -336,3 +336,14 @@ AAAI（02-16）、ICLR（04-26）、CVPR（06-20）、ICML（07-31）、IJCAI（
 - **记录**：发现的会议写到 `data/schedule.json`，随 daily 提交，monthly 读同一个文件。手写的会议优先；某个会议的文件读取失败时保留原来的记录，不影响当天其他步骤。
 - **注意**：ccfddl 记的多是正会日期，比我们手写的开幕日（含 workshop）晚一两天，对 90 天等待期来说只会更保守。新会议如果改了名字或评审方式（比如 IJCAI-ECAI 合办），自动生成的匹配规则可能漏收，这种情况在 config.toml 手写一段覆盖即可。
 
+## 18. 作者清单（补充信息，2026-11-08）
+
+很多 README 有 "- [x] Release inference code / - [ ] Release training code" 这样的清单。已开源的论文里，作者自己清单上还没勾的项单独标出来，**不计入未兑现比例**。原则是宁可漏标，不冤枉作者。
+
+- **存什么**：probe 读完整 README，只把所有勾选项（最多 40 项）和"已经放了哪些类别"存进快照，不存 README 全文。筛选和分类在 build 里做，改规则不用重新检查仓库。
+- **算什么**：只认以 Release / Open-source / Upload / Publish 开头、或 "Training code" 这类短名词的项，而且只认训练代码、模型权重、数据、推理/评测代码四类。扩展计划（more、other datasets、new version、integration、support、Code for XX dataset）、删除线、HTML 注释、论文本身、说明文档类的项都不算。
+- **交叉核对**：没勾的项如果仓库里已有对应代码文件（train.py、infer.py …），或 README 里有 Hugging Face、网盘、Zenodo、GitHub Releases 等下载链接，当作作者忘了勾。
+- **试跑**：CVPR 2024/2025、NeurIPS 2024、ICLR 2025 共 3,667 个仓库。宽松规则下标出 68 个，抽样发现不少是长期计划；逐步收紧并加上交叉核对后剩 7 个（已开源仓库的 0.2%），逐条核对都是明确没兑现的承诺。每类误判都写成了测试用例。
+- **网站**：图例里单独一个"已开源，但作者清单没勾完"的按钮，默认不按下；条目下面原样引用没勾的清单项，不下结论。
+- **顺带修了一个 bug**：`.entry.compact` 的 `display: flex` 盖过了 `.entry[hidden]`，会议页默认会把所有已开源的论文也显示出来（计数是对的）。改成 `display: none !important`。
+

@@ -99,6 +99,8 @@ Conferences appear on the site 90 days after they open, so authors have time to 
 
 Papers with only an anonymous review link, or with a promise but no link, are listed on the site but not counted.
 
+As extra information, the site also marks released repositories whose README checklist (“- [ ] Release training code”) still has unticked release items. These are never counted as not delivered. Only clear promises of training code, weights, data or inference code count, and an item is treated as done when the repository has matching files or the README links a download.
+
 We would rather miss a case than accuse someone wrongly:
 
 - **Only the paper's own repository counts.** That is a link in the abstract or the title block, or one the paper presents as its code (“Our code is available at …”). Links in the references, and code the paper merely builds on, never count.

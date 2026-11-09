@@ -6,7 +6,9 @@ name: monthly
 
 on:
   schedule:
+    # 定时任务偶尔会被 GitHub 跳过，2 日再跑一次备用；只抓新论文，重复运行没有影响。
     - cron: "41 3 1 * *"  # 每月 1 日 UTC 03:41
+    - cron: "41 3 2 * *"  # 每月 2 日（备用）
   workflow_dispatch:
 
 permissions:
